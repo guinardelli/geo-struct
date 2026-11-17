@@ -5,6 +5,61 @@ const id = z.string().min(1).max(100);
 const name = z.string().trim().min(1, "Informe um nome.").max(120);
 const pointSchema = z.object({ x: coordinate, y: coordinate }).strict();
 const points = z.array(pointSchema).max(500);
+const radius = z
+  .number()
+  .finite()
+  .positive("O raio deve ser maior que zero.")
+  .max(1e6);
+const searchAxis = z
+  .object({
+    min: coordinate.nullable(),
+    max: coordinate.nullable(),
+    step: z
+      .number()
+      .finite()
+      .positive("O passo deve ser maior que zero.")
+      .max(2e6)
+      .nullable(),
+  })
+  .strict();
+export const analysisCaseSchema = z
+  .object({
+    id,
+    name,
+    sectionId: id,
+    description: z.string().max(2000),
+    direction: z.enum(["left-to-right", "right-to-left"]).nullable(),
+    methods: z
+      .array(z.enum(["bishop", "fellenius"]))
+      .max(2)
+      .refine((v) => new Set(v).size === v.length, "Métodos repetidos."),
+    surfaceMode: z.enum(["fixed", "search"]).nullable(),
+    fixedCircle: z
+      .object({
+        x: coordinate.nullable(),
+        y: coordinate.nullable(),
+        radius: radius.nullable(),
+      })
+      .strict(),
+    search: z
+      .object({
+        x: searchAxis,
+        y: searchAxis,
+        radius: searchAxis.extend({
+          min: radius.nullable(),
+          max: radius.nullable(),
+        }),
+      })
+      .strict(),
+    waterCondition: z.enum(["section", "dry", "piezometric"]).nullable(),
+    waterSource: z.string().max(2000),
+    loadCondition: z.enum(["section", "none", "selected"]).nullable(),
+    loadIds: z
+      .array(id)
+      .max(100)
+      .refine((v) => new Set(v).size === v.length, "Faixas repetidas no caso."),
+  })
+  .strict();
 export const materialSchema = z
   .object({
     id,
@@ -86,7 +141,7 @@ const sectionSchema = z
 const projectFields = z
   .object({
     format: z.literal("geostruct"),
-    version: z.literal(3),
+    version: z.literal(4),
     id,
     name,
     author: z.string().max(200),
@@ -94,6 +149,7 @@ const projectFields = z
     units: z.literal("m-kN-kPa"),
     materials: z.array(materialSchema).max(100),
     sections: z.array(sectionSchema).min(1).max(100),
+    analysisCases: z.array(analysisCaseSchema).max(100),
   })
   .strict();
 function checkReferences(
@@ -107,12 +163,19 @@ function checkReferences(
       regions: { id: string; materialId: string | null }[];
       loads: { id: string }[];
     }[];
+    analysisCases?: {
+      id: string;
+      name: string;
+      sectionId: string;
+      loadIds: string[];
+    }[];
   },
   ctx: z.RefinementCtx,
 ) {
   const ids = [
     p.id,
     ...p.materials.map((x) => x.id),
+    ...(p.analysisCases ?? []).map((c) => c.id),
     ...p.sections.flatMap((s) => [
       s.id,
       ...s.regions.map((x) => x.id),
@@ -136,8 +199,25 @@ function checkReferences(
         message: `Material inexistente em ${s.name}.`,
       });
   }
+  for (const c of p.analysisCases ?? []) {
+    const section = p.sections.find((s) => s.id === c.sectionId);
+    if (!section)
+      ctx.addIssue({
+        code: "custom",
+        message: `Seção inexistente no caso ${c.name}.`,
+      });
+    else if (c.loadIds.some((id) => !section.loads.some((l) => l.id === id)))
+      ctx.addIssue({
+        code: "custom",
+        message: `Sobrecarga inexistente ou de outra seção no caso ${c.name}.`,
+      });
+  }
 }
 export const projectSchema = projectFields.superRefine(checkReferences);
+const v3Fields = projectFields
+  .omit({ analysisCases: true })
+  .extend({ version: z.literal(3) });
+const v3ProjectSchema = v3Fields.superRefine(checkReferences);
 const legacySectionSchema = sectionSchema
   .omit({
     waterMode: true,
@@ -146,7 +226,7 @@ const legacySectionSchema = sectionSchema
     loadCondition: true,
   })
   .extend({ loads: z.array(legacyLoadSchema).max(100) });
-const v2Fields = projectFields.extend({
+const v2Fields = v3Fields.extend({
   version: z.literal(2),
   sections: z.array(legacySectionSchema).min(1).max(100),
 });
@@ -172,11 +252,12 @@ const legacyProjectSchema = v2Fields
 export type Point = z.infer<typeof pointSchema>;
 export type Material = z.infer<typeof materialSchema>;
 export type Surcharge = z.infer<typeof loadSchema>;
+export type AnalysisCase = z.infer<typeof analysisCaseSchema>;
 export type Section = z.infer<typeof sectionSchema>;
 export type Project = z.infer<typeof projectSchema>;
 export type Selection =
   | { kind: "project" | "section" | "terrain" | "water" | "circle" }
-  | { kind: "material" | "region" | "load"; id: string };
+  | { kind: "material" | "region" | "load" | "case"; id: string };
 export type Tool =
   | "select"
   | "pan"
@@ -185,6 +266,7 @@ export type Tool =
   | "water"
   | "load"
   | "circle"
+  | "case-circle"
   | "insert-vertex"
   | "delete-vertex"
   | "move-contour"
@@ -222,7 +304,7 @@ export function newProject(projectName: string, author = ""): Project {
   m.name = "Solo 1";
   return {
     format: "geostruct",
-    version: 3,
+    version: 4,
     id: uid(),
     name: projectName,
     author,
@@ -230,6 +312,7 @@ export function newProject(projectName: string, author = ""): Project {
     units: "m-kN-kPa",
     materials: [m],
     sections: [newSection()],
+    analysisCases: [],
   };
 }
 export function exampleProject(): Project {
@@ -339,7 +422,9 @@ export function readProject(text: string): {
       ? legacyProjectSchema
       : version === 2
         ? v2ProjectSchema
-        : projectSchema
+        : version === 3
+          ? v3ProjectSchema
+          : projectSchema
   ).safeParse(value);
   if (!r.success)
     throw new Error(
@@ -350,11 +435,17 @@ export function readProject(text: string): {
           .join(" · "),
     );
   const data = r.data;
-  if (data.version === 3) return { project: data, migrated: false };
+  if (data.version === 4) return { project: data, migrated: false };
+  if (data.version === 3)
+    return {
+      project: projectSchema.parse({ ...data, version: 4, analysisCases: [] }),
+      migrated: true,
+    };
   return {
     project: projectSchema.parse({
       ...data,
-      version: 3,
+      version: 4,
+      analysisCases: [],
       sections: data.sections.map((s) => ({
         ...s,
         waterMode: s.water === null ? "unspecified" : "piezometric",

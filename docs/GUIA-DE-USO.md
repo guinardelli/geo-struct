@@ -67,18 +67,32 @@ Durante o desenho ou comandos de dois pontos, abra **Entrada precisa** no canto 
 
 **Medir** mostra distância, ΔX, ΔZ e ângulo entre dois pontos; não modifica o projeto. Um terceiro ponto inicia outra medição. Escape encerra. As preferências de precisão valem para a sessão e não são gravadas como parâmetros físicos no `.geo.json`.
 
+## Casos de análise
+
+Em **Análise → Novo caso**, cadastre um cenário da seção ativa. O caso começa com escolhas pendentes. Informe nome, hipóteses, direção e os métodos pretendidos. Direita/esquerda é sempre relativa ao eixo X do desenho; escolher movimento para a esquerda não espelha seus dados. Os métodos são registrados para preparação: ainda não executam cálculo.
+
+Em **Água no caso**, escolha usar a condição atual da seção ou adotar condição seca/usar a linha cadastrada. As hipóteses próprias exigem origem; a opção piezométrica usa os pontos e γw da seção, mesmo se a linha estiver guardada nela. Em **Sobrecargas no caso**, escolha a condição atual da seção, ausência de cargas ou faixas selecionadas. A seleção explícita pode ativar faixas desabilitadas na seção; mantenha isso como escolha consciente. Dados das faixas (q, posição e origem), geometria e materiais permanecem compartilhados.
+
+Em **Definição da superfície**, escolha círculo fixo ou busca circular. Para o círculo, informe centro X/Z e raio, use **Desenhar círculo do caso** (dois pontos, também por Entrada precisa), ou **Copiar círculo de tentativa**. A cópia entra no rascunho e exige **Aplicar caso**; o desenho confirmado entra no histórico diretamente. O círculo de tentativa da seção não é alterado. Escape cancela o traçado.
+
+Para busca, informe mínimos, máximos e passos dos centros X/Z e raios. Não há valores sugeridos nem geração de candidatos. Um eixo com mínimo igual ao máximo é fixo e pode ficar sem passo. Limites invertidos e passos não positivos são recusados; vazios ficam pendentes. Alternar o modo preserva o círculo e os limites guardados.
+
+Selecione o caso na árvore para ver sua prévia: condições de água/cargas, círculo fixo ou região de centros. A prévia não comprova a admissibilidade da superfície. Use **Enquadrar** para incluir os limites na vista. A edição da geometria base retorna pela árvore ou **Voltar à seção base**. Propriedades só mudam com **Aplicar caso**; a navegação protege rascunhos.
+
+**Gerenciar casos** lista os casos da seção, seus estados e pendências, e permite editar, duplicar ou excluir. Duplicar seção duplica também seus casos com referências próprias; excluir seção avisa quantos casos serão removidos. Faixas selecionadas por casos não podem ser excluídas até retirar as referências, inclusive seleções guardadas em modos inativos. Desfazer/refazer reverte cada operação completa.
+
 ## Arquivos e recuperação
 
 **Salvar** e Ctrl+S exportam `.geo.json`. No desktop, o primeiro salvamento pede destino e os seguintes atualizam o caminho selecionado. **Salvar como** escolhe um novo destino principal. No navegador, cada salvamento gera um download. Confira seu destino de downloads.
 
 **Abrir** valida a estrutura antes de substituir o projeto atual; arquivo inválido não remove o trabalho aberto. Salve ou descarte alterações do projeto antes de substituí-lo. A recuperação local registra somente as operações aplicadas e é oferecida na tela inicial; nunca abre automaticamente. Ela não substitui o arquivo exportado e não contém campos/traçados ainda em edição.
 
-O salvamento usa `geostruct/3`. Arquivos e recuperações das versões 1 e 2 são migrados mantendo materiais, referências, coordenadas e IDs. A abertura do arquivo antigo informa a migração e pede salvamento para persistir o novo formato; **Salvar como** permite conservar o original. Versões antigas do aplicativo não abrem arquivos v3. Campos desconhecidos ou referências inexistentes são recusados, sem descarte silencioso. Ausência de água/cargas antiga fica não definida, sem pressupor condição seca ou sem cargas. Consulte [Água e cargas](AGUA-E-CARGAS.md).
+O salvamento usa `geostruct/4`. Arquivos e recuperações das versões 1, 2 e 3 são migrados mantendo materiais, referências, coordenadas e IDs. A abertura do arquivo antigo informa a migração e pede salvamento para persistir o novo formato; **Salvar como** permite conservar o original. Versões antigas do aplicativo não abrem arquivos v4. Campos desconhecidos ou referências inexistentes são recusados, sem descarte silencioso. Ausência de água/cargas antiga fica não definida, sem pressupor condição seca ou sem cargas. Nenhum caso é criado a partir de arquivos antigos, e o círculo de tentativa continua preservado. Consulte [Casos de análise](CASOS-DE-ANALISE.md).
 
 **Fechar projeto** retorna à tela inicial, protegendo alterações. Fechar normalmente remove sua recuperação local. Fechar a janela/browser sem resolver alterações exibe a proteção da plataforma. Bloqueio de armazenamento local é comunicado; salvar arquivo continua disponível.
 
 ## Documentar
 
-**Relatório de entradas** reúne todas as seções, materiais e fontes, coordenadas, água, cargas, círculo e diagnósticos. Imprimir/PDF usa a impressão disponível no navegador/sistema. **Exportar HTML** fornece uma versão portátil. **Exportar desenho** salva SVG da vista atual; a extensão não contém o modelo editável completo, que pertence ao `.geo.json`.
+**Relatório de entradas** reúne todas as seções, materiais e fontes, coordenadas, água, cargas, círculo, casos e diagnósticos. Os casos registram condições resolvidas, lançamentos ativos, limites e dados guardados, sempre sem resultados de cálculo. Imprimir/PDF usa a impressão disponível no navegador/sistema. **Exportar HTML** fornece uma versão portátil. **Exportar desenho** salva SVG da vista atual; a extensão não contém o modelo editável completo, que pertence ao `.geo.json`.
 
 As verificações desta versão detectam inconsistências de modelagem. A estabilidade e os critérios de aceitação ainda não são calculados.

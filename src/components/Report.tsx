@@ -1,10 +1,19 @@
 import {
   activeWater,
+  activeLoads,
   waterModeLabel,
   loadConditionLabel,
   isLoadActive,
 } from "../domain/conditions";
-import type { Project } from "../domain/model";
+import {
+  caseWaterLabel,
+  caseLoadLabel,
+  directionLabel,
+  surfaceLabel,
+  methodLabel,
+  resolveCaseSection,
+} from "../domain/analysis";
+import type { Project, Section } from "../domain/model";
 import {
   materialMode,
   materialName,
@@ -17,6 +26,141 @@ const number = (n: number | null) =>
   n === null
     ? "Não informado"
     : n.toLocaleString("pt-BR", { maximumFractionDigits: 6 });
+function CaseReport({
+  project,
+  section,
+}: {
+  project: Project;
+  section: Section;
+}) {
+  const cases = project.analysisCases.filter((c) => c.sectionId === section.id);
+  return (
+    <div>
+      <h3>Casos de análise</h3>
+      {!cases.length && (
+        <p>Nenhum caso cadastrado. Não há análise preparada nesta seção.</p>
+      )}
+      {cases.map((c) => {
+        const resolved = resolveCaseSection(section, c),
+          loads = activeLoads(resolved),
+          water = activeWater(resolved);
+        return (
+          <section key={c.id}>
+            <h4>{c.name} · não calculado</h4>
+            <p>
+              Hipóteses: {c.description.trim() || "Não informadas"}.
+              Identificação: {c.id}.
+            </p>
+            <p>
+              {directionLabel(c.direction)} · {surfaceLabel(c.surfaceMode)}.
+              Métodos pretendidos:{" "}
+              {c.methods.map(methodLabel).join(", ") || "Não definidos"}.
+              Coordenadas no referencial original X/Z da seção.
+            </p>
+            <p>
+              Água: {caseWaterLabel(c.waterCondition)}. Condição resultante:{" "}
+              {waterModeLabel(resolved.waterMode)}. Origem:{" "}
+              {resolved.waterSource.trim() || "Não informada"}.
+            </p>
+            {c.waterCondition === "section" && c.waterSource.trim() && (
+              <p>Origem própria guardada, inativa: {c.waterSource}</p>
+            )}
+            {resolved.waterMode === "piezometric" && (
+              <p>
+                γw = {number(resolved.waterUnitWeight)} kN/m³. Linha:{" "}
+                {water
+                  ?.map((p) => `(${number(p.x)} ; ${number(p.y)})`)
+                  .join(" · ") || "Não informada"}
+                .
+              </p>
+            )}
+            <p>
+              Cargas: {caseLoadLabel(c.loadCondition)}. Condição resultante:{" "}
+              {loadConditionLabel(resolved.loadCondition)}. Seleção guardada:{" "}
+              {c.loadIds
+                .map(
+                  (id) =>
+                    section.loads.find((l) => l.id === id)?.name ??
+                    "Referência ausente",
+                )
+                .join(", ") || "Nenhuma"}
+              .
+            </p>
+            {loads.length > 0 && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Faixa ativa no caso</th>
+                    <th>X inicial/final (m)</th>
+                    <th>q (kPa)</th>
+                    <th>Origem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loads.map((l) => (
+                    <tr key={l.id}>
+                      <td>{l.name}</td>
+                      <td>
+                        {number(l.x1)} / {number(l.x2)}
+                      </td>
+                      <td>{number(l.q)}</td>
+                      <td>{l.source.trim() || "Não informada"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            <p>
+              Círculo fixo{" "}
+              {c.surfaceMode === "fixed" ? "selecionado" : "guardado, inativo"}:
+              centro ({number(c.fixedCircle.x)} ; {number(c.fixedCircle.y)}) m;
+              raio {number(c.fixedCircle.radius)} m. Admissibilidade não
+              verificada.
+            </p>
+            <p>
+              Limites de busca{" "}
+              {c.surfaceMode === "search"
+                ? "selecionados"
+                : "guardados, inativos"}
+              :
+            </p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Eixo</th>
+                  <th>Mínimo (m)</th>
+                  <th>Máximo (m)</th>
+                  <th>Passo (m)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(
+                  [
+                    ["x", "Centro X"],
+                    ["y", "Centro Z"],
+                    ["radius", "Raio"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <tr key={key}>
+                    <td>{label}</td>
+                    <td>{number(c.search[key].min)}</td>
+                    <td>{number(c.search[key].max)}</td>
+                    <td>{number(c.search[key].step)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p>
+              Geometria e materiais compartilhados com {section.name}. Nenhuma
+              busca, verificação de admissibilidade ou cálculo de FS foi
+              executado.
+            </p>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
 export function Report({
   project,
   onError,
@@ -233,6 +377,7 @@ export function Report({
                   Admissibilidade não verificada.
                 </p>
               )}
+              <CaseReport project={project} section={s} />
             </section>
           );
         })}

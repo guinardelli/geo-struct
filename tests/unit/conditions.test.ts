@@ -279,7 +279,7 @@ describe("Conferência de água e cargas", () => {
   });
 });
 
-describe("Formato v3 e migração", () => {
+describe("Condições de água/cargas e migração", () => {
   it.each([1, 2])(
     "migra v%s preservando IDs, geometria, materiais e q = 0",
     (version) => {
@@ -288,7 +288,7 @@ describe("Formato v3 e migração", () => {
       old.sections[0].loads[0].q = 0;
       const { project, migrated } = readProject(JSON.stringify(old));
       expect(migrated).toBe(true);
-      expect(project).toMatchObject({ ...old, version: 3 });
+      expect(project).toMatchObject({ ...old, version: 4 });
       expect(project.sections[0]).toMatchObject({
         waterMode: "piezometric",
         waterUnitWeight: null,
@@ -333,7 +333,8 @@ describe("Formato v3 e migração", () => {
   it.each([1, 2, 3])(
     "não descarta campos de água/carga desconhecidos em v%s",
     (version) => {
-      const p = version === 3 ? exampleProject() : legacy();
+      const { analysisCases, ...v3 } = exampleProject();
+      const p = version === 3 ? v3 : legacy();
       p.version = version;
       p.sections[0].loads[0].direction = "horizontal";
       expect(() => readProject(JSON.stringify(p))).toThrow(/inválido/);

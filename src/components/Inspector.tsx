@@ -26,6 +26,7 @@ const labels: Record<Selection["kind"], string> = {
   water: "Condição de água",
   load: "Sobrecarga",
   circle: "Círculo de tentativa",
+  case: "Caso de análise",
 };
 export function Inspector({
   project,

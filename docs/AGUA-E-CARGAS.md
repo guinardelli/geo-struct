@@ -33,7 +33,7 @@ Intervalos sobrepostos de faixas ativas produzem aviso com os nomes e o trecho c
 
 ## Compatibilidade
 
-O salvamento atual é `geostruct/3`. Antes de migrar, o leitor valida integralmente o contrato declarado em v1 ou v2, incluindo referências e campos desconhecidos. A migração preserva os IDs, materiais, geometria, pontos de água, limites e intensidades das cargas, inclusive zero. Acrescenta:
+O cadastro descrito neste documento foi introduzido em `geostruct/3`. O salvamento atual é `geostruct/4`, que adiciona [casos de análise](CASOS-DE-ANALISE.md). Antes de migrar, o leitor valida integralmente o contrato declarado em v1 ou v2, incluindo referências e campos desconhecidos. A migração preserva os IDs, materiais, geometria, pontos de água, limites e intensidades das cargas, inclusive zero. Acrescenta:
 
 | Dado antigo                                   | Estado em v3                                                     |
 | --------------------------------------------- | ---------------------------------------------------------------- |
@@ -43,10 +43,10 @@ O salvamento atual é `geostruct/3`. Antes de migrar, o leitor valida integralme
 | Lista de cargas não vazia                     | `loadCondition: loads`, faixas com `enabled: true`, origem vazia |
 | Lista de cargas vazia                         | `loadCondition: unspecified`; não pressupõe ausência de cargas   |
 
-Uma lista de água antiga vazia ou com um ponto fica piezométrica pendente; não é apagada nem considerada completa. O aplicativo comunica a migração e marca o arquivo para salvar. **Salvar como** conserva o original; aplicativos antigos não leem v3. Recuperações locais v1/v2 passam pela mesma leitura. Dados v3 inativos e pendentes são preservados ao salvar e reabrir. Arquivos que se declarem antigos com campos novos são recusados.
+Uma lista de água antiga vazia ou com um ponto fica piezométrica pendente; não é apagada nem considerada completa. O aplicativo comunica a migração e marca o arquivo para salvar. **Salvar como** conserva o original; aplicativos antigos não leem v4. Recuperações locais v1/v2 passam pela mesma leitura. Dados v3 inativos e pendentes são preservados ao migrar para v4, salvar e reabrir. Arquivos que se declarem antigos com campos novos são recusados.
 
 ## Limites e etapa seguinte
 
 Materiais continuam com um peso específico total informado. A condição de água não altera esse valor, não cria pesos secos/saturados/submersos e não converte parâmetros efetivos/totais. Nenhuma regra de compatibilidade física entre esses campos é presumida enquanto o contrato do motor está pendente.
 
-O recorte atual contém uma condição de água e uma condição de cargas por seção. Casos/cenários próprios, direção de deslizamento, superfície fixa e limites de busca são a próxima etapa. Água externa, fluxo numérico, forças concentradas, cargas trapezoidais/inclinadas, sismo e condições por estágio ainda não estão implementados. “Dados preenchidos” e ausência de erros de modelagem não significam aptidão para cálculo ou aprovação de estabilidade.
+O recorte atual contém uma condição de água e uma condição de cargas por seção. Os casos próprios agora podem herdar essas condições ou escolher hipóteses de água e conjuntos de faixas, com direção, círculo fixo ou limites de busca. A geometria e os dados das faixas continuam pertencendo à seção. Água externa, fluxo numérico, forças concentradas, cargas trapezoidais/inclinadas, sismo e condições por estágio ainda não estão implementados. “Dados preenchidos” e ausência de erros de modelagem não significam aptidão para cálculo ou aprovação de estabilidade.

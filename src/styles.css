@@ -1506,3 +1506,35 @@ kbd {
     margin: 18mm;
   }
 }
+
+.case-fields {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  margin: 8px 0;
+}
+.case-fields legend {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 4px;
+}
+.case-fields h3 {
+  font-size: 12px;
+  margin: 8px 0;
+}
+.case-fields .field-row {
+  align-items: end;
+}
+.case-preview-note {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  max-width: calc(100% - 70px);
+  font-size: 11px;
+  padding: 8px 10px;
+  border-radius: 5px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  pointer-events: none;
+}

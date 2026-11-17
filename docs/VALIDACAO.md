@@ -28,6 +28,12 @@ Testes de domínio verificam estados explícitos, retenção ao desativar, q nul
 
 Os testes Chromium cobrem condição seca e reativação, edição decimal/rascunhos, desenho de linha/faixa, relatório, persistência, gerenciador na janela mínima, habilitação, duplicação, exclusão, navegação a pendências de outra seção e rejeição de ativação fora do terreno. Nenhuma verificação calcula pressão, esforço ou FS.
 
+### Casos de análise e formato v4
+
+O domínio cobre criação com escolhas pendentes, condições herdadas e próprias, seleção de faixas independente da seção, duplicação/exclusão com histórico, limite de casos, referências cruzadas e remapeamento ao duplicar a seção. Valida círculo incompleto, raios/passos inválidos, eixos fixos, limites invertidos, troca de modo sem perda e diagnósticos dos cenários. A migração de v1/v2/v3 preserva os dados e não inventa casos.
+
+Os fluxos Chromium verificam criação, edição, rascunhos, desenho/cancelamento, cópia do círculo de tentativa, prévia de condições, busca sem geração de candidatos, arquivo e relatório, gerenciador na janela mínima, exclusão de faixa referenciada, operações de seção com casos, navegação por diagnóstico e recuperação v3. As verificações não validam interseções do círculo, admissibilidade física, malha de candidatos ou FS.
+
 ## Limites
 
 As verificações são de software de modelagem, sem validação de solver geotécnico. Não há benchmark de FS nesta entrega. A revisão com engenheiros e os casos de cálculo independentes dependem das issues #30/#31 do frontend.

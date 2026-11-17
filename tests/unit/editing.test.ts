@@ -392,8 +392,8 @@ describe("Faces verticais e arquivos existentes", () => {
     const p = parseProject(raw);
     expect(JSON.parse(serializeProject(p))).toMatchObject({
       ...JSON.parse(raw),
-      version: 3,
+      version: 4,
     });
-    expect(p.version).toBe(3);
+    expect(p.version).toBe(4);
   });
 });

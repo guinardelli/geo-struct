@@ -17,7 +17,6 @@ import {
   newProject,
   exampleProject,
   newSection,
-  duplicateSection,
   uid,
   readProject,
   serializeProject,
@@ -45,6 +44,14 @@ import {
   materialUses,
   type MaterialUse,
 } from "./domain/materials";
+import {
+  addAnalysisCase,
+  removeAnalysisCase,
+  loadCaseUses,
+  duplicateSectionWithCases,
+  removeSectionWithCases,
+} from "./domain/analysis";
+import { AnalysisCases, CaseInspector } from "./components/AnalysisCases";
 import { createLoad } from "./domain/conditions";
 import { Loads } from "./components/Loads";
 import { history, commit, undo, redo, type History } from "./domain/history";
@@ -137,6 +144,7 @@ export default function App() {
       | "precision"
       | "materials"
       | "loads"
+      | "cases"
       | "assign-material"
       | null
     >(null);
@@ -161,6 +169,13 @@ export default function App() {
     noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const section =
     project?.sections.find((s) => s.id === sectionId) ?? project?.sections[0];
+  const selectedCase =
+    project?.analysisCases.find(
+      (c) =>
+        selection.kind === "case" &&
+        c.id === selection.id &&
+        c.sectionId === section?.id,
+    ) ?? null;
   const diagnostics = useMemo(
     () => (project ? diagnose(project) : []),
     [project],
@@ -321,7 +336,7 @@ export default function App() {
     setDialog(null);
     if (migrated)
       notify(
-        "Projeto de versão anterior aberto com os dados preservados. O próximo salvamento usará a versão 3; use Salvar como para conservar o arquivo original.",
+        "Projeto de versão anterior aberto com os dados preservados. O próximo salvamento usará a versão 4; use Salvar como para conservar o arquivo original.",
       );
   };
   const apply = (p: Project) => {
@@ -333,6 +348,11 @@ export default function App() {
     if (!(await guardDraft())) return;
     setTool("select");
     setSelection(s);
+    if (s.kind === "case") {
+      const c = project?.analysisCases.find((c) => c.id === s.id);
+      if (c) setSectionId(c.sectionId);
+      setTab("Análise");
+    }
     setInspectorEpoch((n) => n + 1);
   };
   const chooseSection = async (id: string) => {
@@ -374,6 +394,10 @@ export default function App() {
       notify("Defina primeiro um perfil de terreno válido.");
       return;
     }
+    if (t === "case-circle" && !selectedCase) {
+      notify("Selecione primeiro um caso de análise.");
+      return;
+    }
     if (t === "terrain") setSelection({ kind: "terrain" });
     const target = contourTarget(selection);
     if (
@@ -394,6 +418,11 @@ export default function App() {
       notify("Selecione primeiro uma região de solo na árvore ou no desenho.");
       return;
     }
+    if (
+      selection.kind === "case" &&
+      !["case-circle", "pan", "select", "measure"].includes(t)
+    )
+      setSelection({ kind: "terrain" });
     setTool(t);
     setInspectorEpoch((n) => n + 1);
   };
@@ -451,6 +480,19 @@ export default function App() {
     const p = structuredClone(project),
       s = p.sections.find((x) => x.id === section.id)!;
     let selected: Selection = { kind: "terrain" };
+    if (t === "case-circle") {
+      if (!selectedCase) return;
+      const c = p.analysisCases.find((c) => c.id === selectedCase.id)!;
+      c.fixedCircle = { ...points[0], radius: distance(points[0], points[1]) };
+      c.surfaceMode = "fixed";
+      if (acceptGeometry(p)) {
+        setTool("select");
+        setDrawing(false);
+        setSelection({ kind: "case", id: c.id });
+        setFitToken((n) => n + 1);
+      }
+      return;
+    }
     if (t === "terrain") {
       const e = terrainError(points);
       if (e) {
@@ -571,6 +613,19 @@ export default function App() {
       return;
     }
     if (
+      selection.kind === "load" &&
+      loadCaseUses(project, selection.id).length
+    ) {
+      notify(
+        "Esta faixa é selecionada nos casos: " +
+          loadCaseUses(project, selection.id)
+            .map((c) => c.name)
+            .join(", ") +
+          ". Retire a seleção nesses casos antes de excluir.",
+      );
+      return;
+    }
+    if (
       (selection.kind === "water" && !section.water) ||
       (selection.kind === "circle" && !section.circle)
     )
@@ -578,7 +633,9 @@ export default function App() {
     if (
       (await ask(
         "Excluir elemento?",
-        "A exclusão pode ser revertida com Desfazer.",
+        selection.kind === "section"
+          ? `A seção e seus ${project.analysisCases.filter((c) => c.sectionId === section.id).length} caso(s) serão excluídos. A operação pode ser desfeita.`
+          : "A exclusão pode ser revertida com Desfazer.",
         [
           { value: "cancel", label: "Cancelar" },
           { value: "delete", label: "Excluir" },
@@ -590,7 +647,7 @@ export default function App() {
       s = p.sections.find((x) => x.id === section.id)!;
     switch (selection.kind) {
       case "section":
-        p.sections = p.sections.filter((x) => x.id !== s.id);
+        Object.assign(p, removeSectionWithCases(p, s.id));
         setSectionId(p.sections[0].id);
         break;
       case "material":
@@ -604,6 +661,9 @@ export default function App() {
         break;
       case "water":
         s.water = null;
+        break;
+      case "case":
+        Object.assign(p, removeAnalysisCase(p, selection.id));
         break;
       case "circle":
         s.circle = null;
@@ -655,6 +715,7 @@ export default function App() {
         "water",
         "load",
         "circle",
+        "case-circle",
         "insert-vertex",
         "delete-vertex",
         "move-contour",
@@ -739,13 +800,30 @@ export default function App() {
       return;
     }
     if (!(await guardDraft())) return;
+    if (a === "new-case") {
+      try {
+        const result = addAnalysisCase(project, section.id);
+        apply(result.project);
+        setSelection({ kind: "case", id: result.analysisCase.id });
+        setTool("select");
+        setTab("Análise");
+      } catch (e) {
+        notify((e as Error).message);
+      }
+      return;
+    }
     if (a === "water-settings") {
       setTool("select");
       setSelection({ kind: "water" });
       setInspectorEpoch((n) => n + 1);
       return;
     }
-    if (a === "materials" || a === "assign-material" || a === "loads") {
+    if (
+      a === "materials" ||
+      a === "assign-material" ||
+      a === "loads" ||
+      a === "cases"
+    ) {
       setTool("select");
       setDialog(a);
       return;
@@ -787,13 +865,22 @@ export default function App() {
         notify("Limite de 100 seções por projeto.");
         return;
       }
-      const s =
-        a === "duplicate"
-          ? duplicateSection(section)
-          : newSection(
-              `Seção ${String(p.sections.length + 1).padStart(2, "0")}`,
-            );
-      p.sections.push(s);
+      let s;
+      try {
+        if (a === "duplicate") {
+          const result = duplicateSectionWithCases(p, section.id);
+          Object.assign(p, result.project);
+          s = result.section;
+        } else {
+          s = newSection(
+            `Seção ${String(p.sections.length + 1).padStart(2, "0")}`,
+          );
+          p.sections.push(s);
+        }
+      } catch (e) {
+        notify((e as Error).message);
+        return;
+      }
       setSectionId(s.id);
       setSelection({ kind: "terrain" });
       setTool("select");
@@ -970,6 +1057,7 @@ export default function App() {
                 onSection={chooseSection}
                 onAddSection={() => action("section")}
                 onManageLoads={() => action("loads")}
+                onManageCases={() => action("cases")}
               />
               <PanelResizer
                 label="Largura do navegador"
@@ -1018,6 +1106,7 @@ export default function App() {
                   project={project}
                   section={section}
                   selection={selection}
+                  analysisCase={selectedCase}
                   tool={tool}
                   dark={dark}
                   grid={grid}
@@ -1083,7 +1172,14 @@ export default function App() {
                               project.materials.some((m) => m.id === d.target)
                             )
                               setSelection({ kind: "material", id: d.target });
-                            else if (d.target === "loads") setDialog("loads");
+                            else if (
+                              project.analysisCases.some(
+                                (c) => c.id === d.target,
+                              )
+                            ) {
+                              setSelection({ kind: "case", id: d.target });
+                              setTab("Análise");
+                            } else if (d.target === "loads") setDialog("loads");
                             else if (d.target === "water")
                               setSelection({ kind: "water" });
                             else {
@@ -1130,15 +1226,28 @@ export default function App() {
                 max={440}
                 reverse
               />
-              <Inspector
-                key={`${section.id}-${JSON.stringify(selection)}-${inspectorEpoch}`}
-                project={project}
-                section={section}
-                selection={selection}
-                onApply={apply}
-                linked={precision.linked}
-                onDirty={setDraftDirty}
-              />
+              {selectedCase ? (
+                <CaseInspector
+                  key={`${selectedCase.id}-${inspectorEpoch}`}
+                  project={project}
+                  section={section}
+                  analysisCase={selectedCase}
+                  onApply={apply}
+                  onDirty={setDraftDirty}
+                  onDrawCircle={() => void selectTool("case-circle")}
+                  onBase={() => void select({ kind: "terrain" })}
+                />
+              ) : (
+                <Inspector
+                  key={`${section.id}-${JSON.stringify(selection)}-${inspectorEpoch}`}
+                  project={project}
+                  section={section}
+                  selection={selection}
+                  onApply={apply}
+                  linked={precision.linked}
+                  onDirty={setDraftDirty}
+                />
+              )}
             </div>
             <footer className="statusbar">
               <span>
@@ -1322,6 +1431,35 @@ export default function App() {
           onClose={() => setDialog(null)}
         >
           <Report project={project} onError={notify} />
+        </Dialog>
+      )}
+      {dialog === "cases" && project && section && (
+        <Dialog
+          title="Casos de análise da seção"
+          wide
+          onClose={() => setDialog(null)}
+        >
+          <AnalysisCases
+            project={project}
+            section={section}
+            onNew={() => {
+              setDialog(null);
+              void action("new-case");
+            }}
+            onEdit={(id) => {
+              setDialog(null);
+              void select({ kind: "case", id });
+            }}
+            onDuplicate={(id) => {
+              const result = addAnalysisCase(project, section.id, id);
+              apply(result.project);
+            }}
+            onRemove={(id) => {
+              apply(removeAnalysisCase(project, id));
+              if (selection.kind === "case" && selection.id === id)
+                setSelection({ kind: "terrain" });
+            }}
+          />
         </Dialog>
       )}
       {dialog === "loads" && project && section && (

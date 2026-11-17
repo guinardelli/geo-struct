@@ -1,5 +1,15 @@
 # Histórico
 
+## Em desenvolvimento — casos de análise
+
+- Casos com identidade própria vinculados à seção, hipóteses, direção de deslizamento e métodos pretendidos.
+- Condições de água/cargas herdadas ou próprias, seleção explícita de faixas e prévia das entradas do cenário.
+- Círculo fixo por desenho/coordenadas ou cópia explícita do círculo de tentativa; limites e passos de busca circular, sem gerar candidatos.
+- Gerenciador, duplicação/exclusão, relatório e diagnósticos. Duplicar seção remapeia as referências dos casos; excluir seção trata seus casos na mesma operação.
+- Proteção de faixas referenciadas, rascunhos e histórico; formato `geostruct/4`, migrando v1/v2/v3 sem criar casos presumidos.
+
+Próximo passo: conferência completa do lançamento e revisão de usabilidade/arquivos antes da distribuição desktop. Sem solver nesta entrega.
+
 ## Em desenvolvimento — água e sobrecargas
 
 - Condições explícitas de água e presença de sobrecargas por seção; ausência de lançamento distinta de hipótese adotada.
@@ -9,7 +19,7 @@
 - Formato `geostruct/3`, leitura de v1/v2 preservando valores e IDs, inclusive q = 0, e recuperação local compatível.
 - Testes de condições, migração, edição, persistência, histórico e isolamento entre seções.
 
-Próximo passo: casos de análise e limites de busca. Sem solver ou distribuição de instaladores nesta entrega.
+Esta etapa de água/cargas não adicionou solver ou distribuição de instaladores.
 
 ## Em desenvolvimento — materiais e atribuição
 

@@ -30,8 +30,10 @@ Abra http://127.0.0.1:1420. Na tela inicial, escolha **Explorar um exemplo** ou 
 - Condição de água explícita: não definida, seca ou linha piezométrica prescrita, com peso específico e origem da hipótese.
 - Gerenciador de sobrecargas verticais uniformes: intensidade pendente distinta de zero, origem, habilitação por faixa, duplicação e condições explícitas de presença/ausência de cargas.
 - Alertas de cobertura e posição da água, faixas fora do terreno e sobreposição de cargas ativas; círculo geométrico de tentativa.
+- Casos de análise vinculados à seção, com hipóteses, direção explícita, métodos pretendidos, água e seleção de faixas próprias.
+- Círculo fixo por coordenadas/desenho e limites/passos da busca circular; prévia das entradas, duplicação e exclusão com histórico.
 - Validação geométrica, diagnósticos, desfazer/refazer, proteção de propriedades em edição e de alterações não salvas.
-- Projeto `.geo.json` no formato `geostruct/3`, com leitura/migração dos arquivos das versões 1 e 2; cópia local de recuperação; importação inválida preserva o projeto aberto.
+- Projeto `.geo.json` no formato `geostruct/4`, com leitura/migração dos arquivos das versões 1, 2 e 3; cópia local de recuperação; importação inválida preserva o projeto aberto.
 - Relatório de dados de entrada com impressão/PDF pelo navegador, HTML portátil e exportação SVG da vista atual.
 - Estrutura desktop Tauri 2 com ícones padrão provisórios; a arte personalizada será incorporada em uma etapa posterior.
 
@@ -79,6 +81,8 @@ Consulte [Guia de uso](docs/GUIA-DE-USO.md), [Arquitetura](docs/ARQUITETURA.md),
 O [contrato de materiais e migração](docs/MATERIAIS-E-FORMATO.md) descreve os campos, limites de cadastro e compatibilidade dos arquivos. Novas seções e regiões começam sem material atribuído; essa pendência pode ser salva e resolvida depois.
 
 O [contrato de água e cargas](docs/AGUA-E-CARGAS.md) descreve as condições, os lançamentos ativos/inativos e a migração para v3. Desativar preserva os dados; água ou cargas ausentes em um arquivo antigo ficam como não definidas.
+
+O [contrato de casos de análise](docs/CASOS-DE-ANALISE.md) descreve a associação à seção, as condições próprias dos cenários e o formato v4. Os casos ainda não executam cálculo ou busca.
 
 ## Origem e referências
 

@@ -1,3 +1,4 @@
+import { loadCaseUses } from "../domain/analysis";
 import { useState } from "react";
 import { projectSchema, type Project, type Section } from "../domain/model";
 import {
@@ -198,7 +199,16 @@ export function Loads({
             <button
               className="primary"
               onClick={() => {
-                if (apply(() => removeLoad(section, removed.id)))
+                if (
+                  apply(() => {
+                    const uses = loadCaseUses(project, removed.id);
+                    if (uses.length)
+                      throw new Error(
+                        `Esta faixa é selecionada nos casos: ${uses.map((c) => c.name).join(", ")}. Retire a seleção nesses casos antes de excluir.`,
+                      );
+                    return removeLoad(section, removed.id);
+                  })
+                )
                   setDeleting(null);
               }}
             >

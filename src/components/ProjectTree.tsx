@@ -24,6 +24,7 @@ export function ProjectTree({
   onSection,
   onAddSection,
   onManageLoads,
+  onManageCases,
 }: {
   project: Project;
   section: Section;
@@ -32,6 +33,7 @@ export function ProjectTree({
   onSection: (id: string) => void;
   onAddSection: () => void;
   onManageLoads: () => void;
+  onManageCases: () => void;
 }) {
   const active = (kind: Selection["kind"], id?: string) =>
     selection.kind === kind &&
@@ -148,6 +150,22 @@ export function ProjectTree({
                   )}
                 </button>
               ))}
+              <button className="tree-item" onClick={onManageCases}>
+                <CircleDashed size={14} />
+                <span>Casos de análise</span>
+              </button>
+              {project.analysisCases
+                .filter((c) => c.sectionId === s.id)
+                .map((c) => (
+                  <button
+                    key={c.id}
+                    className={`tree-item ${active("case", c.id) ? "selected" : ""}`}
+                    onClick={() => onSelect({ kind: "case", id: c.id })}
+                  >
+                    <CircleDashed size={14} />
+                    <span>{c.name}</span>
+                  </button>
+                ))}
               {s.circle && (
                 <button
                   className={`tree-item ${active("circle") ? "selected" : ""}`}

@@ -57,6 +57,8 @@ export type Action =
   | "delete"
   | "material"
   | "materials"
+  | "cases"
+  | "new-case"
   | "water-settings"
   | "loads"
   | "assign-material"
@@ -188,6 +190,8 @@ const groups: Record<Tab, { label: string; items: Item[] }[]> = {
     {
       label: "Preparação",
       items: [
+        { action: "new-case", label: "Novo caso", icon: Plus },
+        { action: "cases", label: "Gerenciar casos", icon: ListChecks },
         { action: "circle", label: "Círculo de tentativa", icon: CircleDashed },
         { action: "diagnostics", label: "Conferir modelo", icon: ListChecks },
         { action: "report", label: "Relatório de entradas", icon: FileText },
@@ -333,10 +337,10 @@ export function Ribbon({
         ))}
         {tab === "Análise" && (
           <div className="analysis-note">
-            <strong>Estabilidade · próxima etapa</strong>
+            <strong>Preparação dos casos</strong>
             <span>
-              Fellenius, Bishop e busca crítica serão integrados após a
-              validação do motor.
+              Cadastre cenários e superfícies. Cálculo e busca ainda não
+              disponíveis.
             </span>
           </div>
         )}

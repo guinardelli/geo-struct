@@ -1,3 +1,4 @@
+import { resolveCaseSection, directionLabel } from "../domain/analysis";
 import { activeWater, activeLoads } from "../domain/conditions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -9,7 +10,14 @@ import {
   Check,
   X,
 } from "lucide-react";
-import type { Point, Project, Section, Selection, Tool } from "../domain/model";
+import type {
+  AnalysisCase,
+  Point,
+  Project,
+  Section,
+  Selection,
+  Tool,
+} from "../domain/model";
 import { PointEntry } from "./PointEntry";
 import {
   contourTarget,
@@ -41,6 +49,8 @@ export const instructions: Record<Tool, string> = {
   water:
     "Marque a linha piezométrica da esquerda para a direita. Enter conclui.",
   load: "Clique no início e no fim da faixa. Depois informe a sobrecarga nas propriedades.",
+  "case-circle":
+    "Clique no centro e em um ponto para definir o círculo fixo deste caso. Esc cancela.",
   circle: "Clique no centro e em um ponto do círculo para definir o raio.",
   "insert-vertex":
     "Clique no segmento do contorno selecionado para inserir um vértice.",
@@ -59,6 +69,7 @@ export function ModelCanvas({
   project,
   section,
   selection,
+  analysisCase,
   tool,
   dark,
   grid,
@@ -79,6 +90,7 @@ export function ModelCanvas({
   project: Project;
   section: Section;
   selection: Selection;
+  analysisCase: AnalysisCase | null;
   tool: Tool;
   dark: boolean;
   grid: boolean;
@@ -116,6 +128,7 @@ export function ModelCanvas({
   const [snapKind, setSnapKind] = useState("Livre");
   const twoPointTools: Tool[] = [
     "circle",
+    "case-circle",
     "load",
     "move-contour",
     "copy-region",
@@ -152,6 +165,19 @@ export function ModelCanvas({
   }, [points.length, tool, onDrawing]);
   const fit = () => {
     const pts = boundary(section);
+    if (analysisCase?.surfaceMode === "fixed") {
+      const c = analysisCase.fixedCircle;
+      if (c.x !== null && c.y !== null && c.radius !== null)
+        pts.push(
+          { x: c.x - c.radius, y: c.y - c.radius },
+          { x: c.x + c.radius, y: c.y + c.radius },
+        );
+    }
+    if (analysisCase?.surfaceMode === "search") {
+      const { x, y } = analysisCase.search;
+      if (x.min !== null && x.max !== null && y.min !== null && y.max !== null)
+        pts.push({ x: x.min, y: y.min }, { x: x.max, y: y.max });
+    }
     if (!pts.length) {
       setView({
         x: 60,
@@ -177,7 +203,7 @@ export function ModelCanvas({
       z,
     });
   };
-  useEffect(fit, [section.id, fitToken, size.w, size.h]);
+  useEffect(fit, [section.id, analysisCase?.id, fitToken, size.w, size.h]);
   const zoom = (factor: number, px = size.w / 2, py = size.h / 2) =>
     setView((v) => {
       const z = Math.max(0.00001, Math.min(100000, v.z * factor));
@@ -202,7 +228,11 @@ export function ModelCanvas({
     el.addEventListener("wheel", wheel, { passive: false });
     return () => el.removeEventListener("wheel", wheel);
   }, []);
-  const water = activeWater(section);
+  const displaySection = useMemo(
+    () => (analysisCase ? resolveCaseSection(section, analysisCase) : section),
+    [section, analysisCase],
+  );
+  const water = activeWater(displaySection);
   const selectedPoints =
     selection.kind === "terrain"
       ? section.terrain
@@ -235,10 +265,10 @@ export function ModelCanvas({
     () => [
       { points: section.terrain, closed: false },
       ...section.regions.map((r) => ({ points: r.points, closed: true })),
-      { points: activeWater(section) ?? [], closed: false },
+      { points: activeWater(displaySection) ?? [], closed: false },
       { points, closed: false },
     ],
-    [section, points],
+    [section, displaySection, points],
   );
   const world = (e: { clientX: number; clientY: number }): Point => {
     const rect = host.current!.getBoundingClientRect();
@@ -424,6 +454,7 @@ export function ModelCanvas({
               );
             return;
           }
+          if (tool === "select" && analysisCase) return;
           if (tool === "select") {
             const vertex = (e.target as Element).closest("[data-vertex]");
             if (vertex) {
@@ -600,7 +631,7 @@ export function ModelCanvas({
             </>
           )}
           {visibility.loads &&
-            activeLoads(section).map((l) => {
+            activeLoads(displaySection).map((l) => {
               const a = elevation(selectedTerrain, l.x1),
                 b = elevation(selectedTerrain, l.x2);
               if (a === null || b === null) return null;
@@ -658,7 +689,67 @@ export function ModelCanvas({
                 </g>
               );
             })}
-          {visibility.circle && section.circle && (
+          {analysisCase && visibility.circle && (
+            <g
+              data-case-preview={analysisCase.id}
+              pointerEvents="none"
+              stroke="#7053c1"
+              fill="none"
+            >
+              {analysisCase.surfaceMode === "fixed" &&
+                analysisCase.fixedCircle.x !== null &&
+                analysisCase.fixedCircle.y !== null &&
+                analysisCase.fixedCircle.radius !== null && (
+                  <>
+                    <circle
+                      data-case-circle="true"
+                      cx={analysisCase.fixedCircle.x}
+                      cy={analysisCase.fixedCircle.y}
+                      r={analysisCase.fixedCircle.radius}
+                      strokeWidth={2}
+                      strokeDasharray="8 4"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                    {label(
+                      {
+                        x: analysisCase.fixedCircle.x,
+                        y: analysisCase.fixedCircle.y,
+                      },
+                      "+ C do caso",
+                      "#7053c1",
+                    )}
+                  </>
+                )}
+              {analysisCase.surfaceMode === "search" &&
+                analysisCase.search.x.min !== null &&
+                analysisCase.search.x.max !== null &&
+                analysisCase.search.y.min !== null &&
+                analysisCase.search.y.max !== null && (
+                  <>
+                    <path
+                      data-case-search="true"
+                      d={`M${analysisCase.search.x.min} ${analysisCase.search.y.min} H${analysisCase.search.x.max} V${analysisCase.search.y.max} H${analysisCase.search.x.min} Z`}
+                      fill="#7053c1"
+                      fillOpacity={0.08}
+                      strokeWidth={2}
+                      strokeDasharray="6 4"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                    {label(
+                      {
+                        x: analysisCase.search.x.min,
+                        y: analysisCase.search.y.max,
+                      },
+                      "Centros da busca",
+                      "#7053c1",
+                      "start",
+                      -7,
+                    )}
+                  </>
+                )}
+            </g>
+          )}
+          {visibility.circle && section.circle && !analysisCase && (
             <g data-pick="circle">
               <circle
                 cx={section.circle.x}
@@ -738,7 +829,7 @@ export function ModelCanvas({
                 strokeDasharray="6 4"
                 vectorEffect="non-scaling-stroke"
               />
-              {tool === "circle" && cursor && (
+              {(tool === "circle" || tool === "case-circle") && cursor && (
                 <circle
                   cx={points[0].x}
                   cy={points[0].y}
@@ -820,6 +911,16 @@ export function ModelCanvas({
             : "Defina o perfil do terreno para começar"}
         </span>
       </div>
+      {analysisCase && (
+        <div
+          className="case-preview-note"
+          role="note"
+          aria-label="Prévia do caso"
+        >
+          Prévia: {analysisCase.name} · {directionLabel(analysisCase.direction)}{" "}
+          · não calculado
+        </div>
+      )}
       <div className="canvas-controls">
         <button
           className={`icon-button ${tool === "select" ? "active" : ""}`}

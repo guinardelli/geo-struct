@@ -2,6 +2,7 @@ import polygonClipping from "polygon-clipping";
 import type { Point, Section, Project } from "./model";
 import { materialPending, materialUses } from "./materials";
 import { activeLoads, activeWater, loadPending } from "./conditions";
+import { caseIssues, resolveCaseSection } from "./analysis";
 // Tolerância geométrica de modelagem, em metros. Não é tolerância do futuro solver.
 export const EPS = 1e-7;
 export const distance = (a: Point, b: Point) =>
@@ -350,6 +351,32 @@ export function diagnose(p: Project): Diagnostic[] {
           `${l.name}: confira os limites da faixa sobre o terreno.`,
           l.id,
         );
+  }
+  for (const c of p.analysisCases) {
+    const section = p.sections.find((s) => s.id === c.sectionId);
+    if (!section) continue; // Structural validation reports missing references.
+    for (const issue of caseIssues(c))
+      out.push({
+        ...issue,
+        target: c.id,
+        sectionId: c.sectionId,
+        message: `${section.name} · ${c.name}: ${issue.message}`,
+      });
+    const resolved = resolveCaseSection(section, c);
+    for (const d of diagnose({
+      ...p,
+      materials: [],
+      analysisCases: [],
+      sections: [{ ...resolved, regions: [] }],
+    })) {
+      const isWater = d.target === "water" && c.waterCondition !== null;
+      const isLoad =
+        (d.target === "loads" ||
+          resolved.loads.some((l) => l.id === d.target)) &&
+        c.loadCondition !== null;
+      if (isWater || isLoad)
+        out.push({ ...d, target: c.id, message: `${c.name} · ${d.message}` });
+    }
   }
   return out;
 }
