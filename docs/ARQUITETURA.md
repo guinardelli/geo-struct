@@ -47,3 +47,9 @@ Os diálogos nativos ampliam o escopo apenas para caminhos selecionados pelo usu
 ## Preparação para o motor
 
 O motor será um módulo separado do React, com dados de entrada normalizados, resultados por fatia, diagnósticos e revisão do modelo de origem. A busca deverá executar em Worker com progresso e cancelamento. A versão atual não contém solver simulado, regra de FS mínimo ou sinalização de aprovação de estabilidade. O contrato detalhado depende do fechamento das issues #30/#31.
+
+## Conferência integrada dos lançamentos
+
+Em **Análise → Conferir modelo**, filtre por seção/caso e severidade. Cada caso inclui a geometria e os materiais compartilhados, além das condições efetivas de água/cargas do cenário. Materiais sem uso aparecem em um escopo próprio. Clique numa pendência para abrir o cadastro correspondente; rascunhos continuam protegidos. O relatório de entradas inclui a mesma conferência por escopo. Pendências compartilhadas aparecem em cada caso afetado, portanto as contagens não são somáveis como ocorrências únicas.
+
+A conferência é derivada dos dados aplicados e não altera o formato v4 ou cria resultados. Ausência de pendências não comprova admissibilidade das superfícies nem estabilidade. Testes cobrem dependências compartilhadas, isolamento, condições próprias, ida/volta do arquivo, navegação e rascunhos. O salvamento recusa projetos acima de 8 MB para evitar produzir um arquivo que o leitor rejeitaria; o modelo aberto permanece disponível para edição.

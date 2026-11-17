@@ -460,5 +460,11 @@ export function readProject(text: string): {
 }
 export const parseProject = (text: string): Project =>
   readProject(text).project;
-export const serializeProject = (p: Project) =>
-  JSON.stringify(projectSchema.parse(p), null, 2) + "\n";
+export const serializeProject = (p: Project) => {
+  const text = JSON.stringify(projectSchema.parse(p), null, 2) + "\n";
+  if (new TextEncoder().encode(text).byteLength > MAX_FILE_BYTES)
+    throw new Error(
+      "O projeto excede o limite de 8 MB. Reduza os dados antes de salvar.",
+    );
+  return text;
+};

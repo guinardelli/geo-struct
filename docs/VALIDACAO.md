@@ -41,3 +41,9 @@ As verificações são de software de modelagem, sem validação de solver geot�
 Compilar um executável nativo não comprova sua interação com todos os ambientes. Antes de distribuir instaladores, conferir manualmente em Linux e Windows: abrir/salvar, cancelamento de diálogo, permissões, fechamento com alterações, impressão, escala de tela, zoom/pan e teclado. Validar Linux WebKitGTK e Windows WebView2 além do Chromium dos testes.
 
 A recuperação usa armazenamento local e pode ser bloqueada pelo navegador. O caso deve produzir aviso sem substituir a responsabilidade de salvar arquivo. Arquivos com geometria inconsistente são abertos com diagnósticos, sem conferir aprovação de estabilidade.
+
+## Conferência integrada dos lançamentos
+
+Em **Análise → Conferir modelo**, filtre por seção/caso e severidade. Cada caso inclui a geometria e os materiais compartilhados, além das condições efetivas de água/cargas do cenário. Materiais sem uso aparecem em um escopo próprio. Clique numa pendência para abrir o cadastro correspondente; rascunhos continuam protegidos. O relatório de entradas inclui a mesma conferência por escopo. Pendências compartilhadas aparecem em cada caso afetado, portanto as contagens não são somáveis como ocorrências únicas.
+
+A conferência é derivada dos dados aplicados e não altera o formato v4 ou cria resultados. Ausência de pendências não comprova admissibilidade das superfícies nem estabilidade. Testes cobrem dependências compartilhadas, isolamento, condições próprias, ida/volta do arquivo, navegação e rascunhos. O salvamento recusa projetos acima de 8 MB para evitar produzir um arquivo que o leitor rejeitaria; o modelo aberto permanece disponível para edição.

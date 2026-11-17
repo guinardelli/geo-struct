@@ -96,3 +96,9 @@ O salvamento usa `geostruct/4`. Arquivos e recuperações das versões 1, 2 e 3 
 **Relatório de entradas** reúne todas as seções, materiais e fontes, coordenadas, água, cargas, círculo, casos e diagnósticos. Os casos registram condições resolvidas, lançamentos ativos, limites e dados guardados, sempre sem resultados de cálculo. Imprimir/PDF usa a impressão disponível no navegador/sistema. **Exportar HTML** fornece uma versão portátil. **Exportar desenho** salva SVG da vista atual; a extensão não contém o modelo editável completo, que pertence ao `.geo.json`.
 
 As verificações desta versão detectam inconsistências de modelagem. A estabilidade e os critérios de aceitação ainda não são calculados.
+
+## Conferência integrada dos lançamentos
+
+Em **Análise → Conferir modelo**, filtre por seção/caso e severidade. Cada caso inclui a geometria e os materiais compartilhados, além das condições efetivas de água/cargas do cenário. Materiais sem uso aparecem em um escopo próprio. Clique numa pendência para abrir o cadastro correspondente; rascunhos continuam protegidos. O relatório de entradas inclui a mesma conferência por escopo. Pendências compartilhadas aparecem em cada caso afetado, portanto as contagens não são somáveis como ocorrências únicas.
+
+A conferência é derivada dos dados aplicados e não altera o formato v4 ou cria resultados. Ausência de pendências não comprova admissibilidade das superfícies nem estabilidade. Testes cobrem dependências compartilhadas, isolamento, condições próprias, ida/volta do arquivo, navegação e rascunhos. O salvamento recusa projetos acima de 8 MB para evitar produzir um arquivo que o leitor rejeitaria; o modelo aberto permanece disponível para edição.

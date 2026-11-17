@@ -1,3 +1,4 @@
+import { auditProject } from "../domain/audit";
 import { useEffect, useState } from "react";
 import { Check, RotateCcw } from "lucide-react";
 import {
@@ -13,7 +14,7 @@ import {
   methodLabel,
   surfaceLabel,
 } from "../domain/analysis";
-import { diagnose, introducedError, parseNumber } from "../domain/geometry";
+import { introducedError, parseNumber } from "../domain/geometry";
 
 export function AnalysisCases({
   project,
@@ -33,7 +34,9 @@ export function AnalysisCases({
   const [deleting, setDeleting] = useState<string | null>(null),
     [error, setError] = useState("");
   const cases = project.analysisCases.filter((c) => c.sectionId === section.id),
-    diagnostics = diagnose(project);
+    diagnostics = auditProject(project).flatMap((scope) =>
+      scope.diagnostics.map((d) => ({ ...d, target: scope.id })),
+    );
   const removed = cases.find((c) => c.id === deleting);
   return (
     <div className="materials-manager">

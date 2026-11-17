@@ -1,3 +1,4 @@
+import { auditProject, auditCounts } from "../domain/audit";
 import {
   activeWater,
   activeLoads,
@@ -197,6 +198,35 @@ export function Report({
       <article id="project-report" className="project-report">
         <div className="report-brand">OPENSTRUCT / GEOSTRUCT 0.1.0</div>
         <h1>{project.name}</h1>
+        <h2>Conferência dos lançamentos por seção e caso</h2>
+        <p>
+          Inclui dependências compartilhadas. A ausência de pendências não é
+          aprovação de estabilidade.
+        </p>
+        {auditProject(project).map((scope) => {
+          const counts = auditCounts(scope.diagnostics);
+          return (
+            <section key={scope.id}>
+              <h3>{scope.name}</h3>
+              <p>
+                {counts.errors} erro(s) · {counts.warnings} aviso(s)
+              </p>
+              <ul>
+                {scope.diagnostics.map((d, i) => (
+                  <li key={i}>
+                    {d.level === "error"
+                      ? "Erro"
+                      : d.level === "warning"
+                        ? "Aviso"
+                        : "Informação"}
+                    : {d.message}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+
         <p>
           Relatório de dados de entrada ·{" "}
           {new Date().toLocaleDateString("pt-BR")}

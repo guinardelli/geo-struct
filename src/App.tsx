@@ -1,3 +1,4 @@
+import { Audit } from "./components/Audit";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertCircle,
@@ -145,6 +146,7 @@ export default function App() {
       | "materials"
       | "loads"
       | "cases"
+      | "audit"
       | "assign-material"
       | null
     >(null);
@@ -704,6 +706,33 @@ export default function App() {
     setTool("select");
     setInspectorEpoch((n) => n + 1);
   };
+  const locateDiagnostic = async (
+    d: import("./domain/geometry").Diagnostic,
+  ) => {
+    if (!project || !(await guardDraft())) return;
+    setTool("select");
+    setDialog(null);
+    if (d.sectionId) setSectionId(d.sectionId);
+    if (project.materials.some((m) => m.id === d.target))
+      setSelection({ kind: "material", id: d.target });
+    else if (project.analysisCases.some((c) => c.id === d.target)) {
+      setSelection({ kind: "case", id: d.target });
+      setTab("Análise");
+    } else if (d.target === "cases") setDialog("cases");
+    else if (d.target === "loads") setDialog("loads");
+    else if (d.target === "water") setSelection({ kind: "water" });
+    else {
+      const s = project.sections.find((s) => s.id === d.sectionId);
+      setSelection(
+        s?.regions.some((r) => r.id === d.target)
+          ? { kind: "region", id: d.target }
+          : s?.loads.some((l) => l.id === d.target)
+            ? { kind: "load", id: d.target }
+            : { kind: "terrain" },
+      );
+    }
+    setInspectorEpoch((n) => n + 1);
+  };
   const action = async (a: Action) => {
     if (busy || question) return;
     if (
@@ -822,7 +851,8 @@ export default function App() {
       a === "materials" ||
       a === "assign-material" ||
       a === "loads" ||
-      a === "cases"
+      a === "cases" ||
+      a === "audit"
     ) {
       setTool("select");
       setDialog(a);
@@ -1165,36 +1195,7 @@ export default function App() {
                         <button
                           key={i}
                           onClick={async () => {
-                            if (!(await guardDraft())) return;
-                            setTool("select");
-                            if (d.sectionId) setSectionId(d.sectionId);
-                            if (
-                              project.materials.some((m) => m.id === d.target)
-                            )
-                              setSelection({ kind: "material", id: d.target });
-                            else if (
-                              project.analysisCases.some(
-                                (c) => c.id === d.target,
-                              )
-                            ) {
-                              setSelection({ kind: "case", id: d.target });
-                              setTab("Análise");
-                            } else if (d.target === "loads") setDialog("loads");
-                            else if (d.target === "water")
-                              setSelection({ kind: "water" });
-                            else {
-                              const s = project.sections.find(
-                                (s) => s.id === d.sectionId,
-                              );
-                              setSelection(
-                                s?.regions.some((r) => r.id === d.target)
-                                  ? { kind: "region", id: d.target }
-                                  : s?.loads.some((l) => l.id === d.target)
-                                    ? { kind: "load", id: d.target }
-                                    : { kind: "terrain" },
-                              );
-                            }
-                            setInspectorEpoch((n) => n + 1);
+                            await locateDiagnostic(d);
                           }}
                         >
                           <span
@@ -1431,6 +1432,15 @@ export default function App() {
           onClose={() => setDialog(null)}
         >
           <Report project={project} onError={notify} />
+        </Dialog>
+      )}
+      {dialog === "audit" && project && (
+        <Dialog
+          title="Conferência dos lançamentos"
+          wide
+          onClose={() => setDialog(null)}
+        >
+          <Audit project={project} onLocate={(d) => void locateDiagnostic(d)} />
         </Dialog>
       )}
       {dialog === "cases" && project && section && (

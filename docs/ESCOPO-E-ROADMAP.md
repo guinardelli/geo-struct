@@ -36,7 +36,7 @@ Os testes de modelagem deste repositório não substituem os casos geotécnicos 
 1. Geometria e edição: implementadas nesta evolução; revisar o uso em modelos reais.
 2. Materiais, atribuição explícita, água e sobrecargas: implementados no recorte inicial. As regras físicas que combinam materiais/água dependem do contrato do motor.
 3. Casos de análise: implementados no recorte de cadastro e prévia, com identidade própria e vínculo à seção.
-4. **Próxima entrega — conferência completa do lançamento:** validação entre entidades, persistência/migrações e diagnóstico das pendências. Revisar usabilidade e arquivos nos sistemas de destino antes da primeira distribuição desktop.
+4. **Conferência integrada — implementada:** escopos por seção/caso, dependências compartilhadas, navegação, relatório e limite de arquivo simétrico. **Próxima entrega:** homologação nativa dos fluxos de arquivos/usabilidade em Windows e Linux e preparação dos instaladores da primeira versão de modelagem.
 5. Concluir a especificação #30 e o catálogo #31. Definir contrato do motor, perfis numéricos, tratamento das faces verticais, materiais/água e comportamento de falhas.
 6. Implementar preparação de fatias e cálculo em superfície fixa. Validar geometria e forças, além das equações, com referências independentes.
 7. Implementar busca circular determinística, progresso, cancelamento, inspeção por fatia e memória rastreável. Vincular resultados à revisão de entrada e invalidá-los quando ela mudar.

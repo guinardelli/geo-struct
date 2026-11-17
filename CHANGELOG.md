@@ -1,5 +1,11 @@
 # Histórico
 
+## Em desenvolvimento — conferência integrada
+
+- Conferência por seção/caso, filtros, dependências compartilhadas e navegação aos cadastros. Relatório com o mesmo diagnóstico por escopo.
+- Salvamento recusa arquivos acima do limite de leitura (8 MB), preservando o modelo aberto.
+- Testes de isolamento, condições próprias, persistência, rascunhos e janela mínima. Sem alteração de formato ou motor de cálculo.
+
 ## Em desenvolvimento — casos de análise
 
 - Casos com identidade própria vinculados à seção, hipóteses, direção de deslizamento e métodos pretendidos.

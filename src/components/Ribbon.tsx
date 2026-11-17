@@ -57,6 +57,7 @@ export type Action =
   | "delete"
   | "material"
   | "materials"
+  | "audit"
   | "cases"
   | "new-case"
   | "water-settings"
@@ -193,7 +194,7 @@ const groups: Record<Tab, { label: string; items: Item[] }[]> = {
         { action: "new-case", label: "Novo caso", icon: Plus },
         { action: "cases", label: "Gerenciar casos", icon: ListChecks },
         { action: "circle", label: "Círculo de tentativa", icon: CircleDashed },
-        { action: "diagnostics", label: "Conferir modelo", icon: ListChecks },
+        { action: "audit", label: "Conferir modelo", icon: ListChecks },
         { action: "report", label: "Relatório de entradas", icon: FileText },
       ],
     },

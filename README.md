@@ -91,3 +91,9 @@ Criado por **Ricardo Corsini**, no ecossistema **OpenStruct**. A base de pesquis
 A experiência segue convenções observadas nos aplicativos OpenStruct e na documentação oficial do Slide2 e GEO5. A implementação é própria. As referências e a situação do futuro motor estão em [ESCOPO-E-ROADMAP.md](docs/ESCOPO-E-ROADMAP.md).
 
 Licença MIT. Dependências preservam suas licenças; veja [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Conferência integrada dos lançamentos
+
+Em **Análise → Conferir modelo**, filtre por seção/caso e severidade. Cada caso inclui a geometria e os materiais compartilhados, além das condições efetivas de água/cargas do cenário. Materiais sem uso aparecem em um escopo próprio. Clique numa pendência para abrir o cadastro correspondente; rascunhos continuam protegidos. O relatório de entradas inclui a mesma conferência por escopo. Pendências compartilhadas aparecem em cada caso afetado, portanto as contagens não são somáveis como ocorrências únicas.
+
+A conferência é derivada dos dados aplicados e não altera o formato v4 ou cria resultados. Ausência de pendências não comprova admissibilidade das superfícies nem estabilidade. Testes cobrem dependências compartilhadas, isolamento, condições próprias, ida/volta do arquivo, navegação e rascunhos. O salvamento recusa projetos acima de 8 MB para evitar produzir um arquivo que o leitor rejeitaria; o modelo aberto permanece disponível para edição.
