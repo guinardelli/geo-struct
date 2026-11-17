@@ -133,8 +133,9 @@ export function SliceWeightInspection({
         </>
       )}
       <p className="hint">
-        Peso próprio separado das sobrecargas e das pressões. Forças de água,
-        equilíbrio e fator de segurança ainda não calculados.
+        Peso próprio separado das sobrecargas e das pressões. A entrada mecânica
+        reúne essas grandezas. Equilíbrio e fator de segurança ainda não
+        calculados.
       </p>
     </details>
   );

@@ -36,6 +36,12 @@ Os fluxos Chromium verificam criação, edição, rascunhos, desenho/cancelament
 
 ## Limites
 
+### Entrada mecânica das fatias
+
+O caso independente de corda de 2 m a 30°, W = 100, Q = 15 e u = 10 confere b = √3, V = 115 e U = 20, em unidades coerentes, sem calcular normal ou FS. A geometria circular analítica verifica pressão central, comprimento de corda e braço aproximado do peso. Testes distinguem u/U de ue/Ue, mantêm a pressão física em modo total, usam resistência somente do material da base e preservam modos distintos em bases diferentes. Incluem c/φ zero ou nulos, parâmetros inválidos, faixas sobrepostas e com momentos opostos, ordem/espelhamento, translação, escala e refinamento.
+
+A consolidação verifica revisão/perfil, estágios indisponíveis, correspondência por número, pontos/áreas de outra discretização, valores não finitos e underflow. O resultado é copiado e congelado sem alterar ou congelar os objetos mutáveis fornecidos. Fluxos Chromium cobrem inspeção na janela mínima, mudança de modo, sentido e condições próprias, rascunho, completar coesão nula com zero, arquivo/reabertura e desfazer/refazer com reseleção do caso. Ver [Entrada mecânica das fatias](ENTRADA-MECANICA-DAS-FATIAS.md). As verificações não representam validação de estabilidade ou aceite dos recortes restantes da especificação.
+
 ### Resultantes das sobrecargas nas fatias
 
 Integrais analíticas independentes conferem 20 kPa em [−2,0] como 40 kN/m e +40 kN·m/m sobre xc = 0; cargas espelhadas mudam o sinal CCW e conservam o momento orientado ao inverter o sentido. Conferem recorte parcial, ponto próprio do trecho carregado, terreno inclinado, sobreposição por ID, força positiva com momento zero, contribuições negativas, contato sem largura, faixa fora da massa, q zero/nulo, condições próprias/herdadas e sentido pendente. Escala, translação e refinamento preservam os balanços. Há verificações de revisão, imutabilidade, independência de pesos/pressões, entrada inválida, overflow/underflow e cancelamento numérico.

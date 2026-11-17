@@ -1,5 +1,12 @@
 # Histórico
 
+## Em desenvolvimento — entrada mecânica das fatias
+
+- Consolidação de geometria, pesos, pressões e sobrecargas da mesma revisão/perfil em `geostruct-slice-mechanics/1`, com ordenação no sentido do movimento e identificação geométrica original preservada.
+- Corda da base, α positivo na descida, coordenadas locais no centro do círculo e braço aproximado do peso. Sobrecargas conservam seus braços próprios.
+- Resistência fornecida pelo material da base, com c/φ/modo explícitos. Pressão física u e resultante aproximada U = uℓ separadas de ue/Ue destinados à resistência; modo total não apaga a pressão física nem muda o peso próprio.
+- Inspeção integrada por fatia, diagnósticos sem resultado parcial e testes independentes de sinais, unidades, modos, referência, perfil, arquivo e histórico. Sem equilíbrio, normal, convergência ou FS; formato v4 e distribuição 0.1.0 preservados.
+
 ## Em desenvolvimento — resultantes das sobrecargas
 
 - Recorte de D3: forças verticais por largura horizontal carregada, pontos no terreno e braços próprios em relação ao círculo. Momentos com sinal CCW e orientados ao movimento, sem confundir força nula com momento nulo.

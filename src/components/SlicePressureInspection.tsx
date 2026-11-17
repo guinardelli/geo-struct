@@ -161,9 +161,9 @@ export function SlicePressureInspection({
         </>
       )}
       <p className="hint">
-        Pressão física prescrita, sem alteração pelo modo de resistência. Forças
-        de água, pressão usada nas equações e fator de segurança são etapas
-        posteriores.
+        Pressão física prescrita, sem alteração pelo modo de resistência.
+        Consulte a entrada mecânica para ue e as resultantes aproximadas da
+        base. Equilíbrio e fator de segurança ainda não calculados.
       </p>
     </details>
   );

@@ -48,6 +48,10 @@ Recorte de D2 com altura vertical no ponto médio angular do arco, γw informado
 
 Recorte de D3: Q = q × largura horizontal carregada, ponto médio do trecho com cota do terreno, braço próprio e momento com sinal. Contrato `geostruct-slice-loads/1`, mesma revisão/perfil, totais por faixa/fatia e contribuições com ID/origem. Sobreposições somam; q nulo contribuinte bloqueia sem total parcial. Sentido ausente mantém momentos CCW e deixa campos orientados pendentes. Inspeção, casos analíticos e arquivo v4 preservado. Ver [Sobrecargas nas fatias](SOBRECARGAS-NAS-FATIAS.md). Sem equilíbrio ou aceite integral de R0–R6.
 
+### Entrada mecânica por fatia — implementada
+
+Consolidação de geometria, peso, água e sobrecargas com revisão/perfil coerentes, ordenação no movimento e coordenadas locais. Parâmetros resistentes do material da base, α e braço aproximado do peso; braços próprios das faixas preservados. u/U físicos separados de ue/Ue conforme modo efetivo/total, com inspeção e bloqueios de dados incompletos. Contrato `geostruct-slice-mechanics/1`, sem resultados no arquivo v4. Ver [Entrada mecânica das fatias](ENTRADA-MECANICA-DAS-FATIAS.md). Não avalia normal, resistência mobilizada, tração, equilíbrio, FS ou admissibilidade do modo misto.
+
 ### Referências e decisões
 
 - [#28 — Roadmap](https://github.com/ricardocorsini/openstruct-front/issues/28): primeiro motor determinístico 2D, superfícies circulares, Mohr–Coulomb, Fellenius e Bishop Simplificado.
@@ -64,7 +68,7 @@ Os testes de modelagem deste repositório não substituem os casos geotécnicos 
 3. Casos de análise: implementados no recorte de cadastro e prévia, com identidade própria e vínculo à seção.
 4. **Conferência integrada e distribuição 0.1.0 — implementadas:** escopos por seção/caso, dependências compartilhadas, navegação, relatório, limite de arquivo simétrico e instaladores Windows/Linux disponíveis no Launcher. A homologação manual nativa completa continua pendente.
 5. **Contrato de transferência de entradas — implementado.** O recorte aprovado de D2 já sustenta o peso próprio. Concluir as regras restantes da especificação #30 e o catálogo #31 para os próximos cálculos: perfis numéricos, tratamento das faces verticais, água e comportamento de falhas.
-6. **Interseções, fatias, subáreas, peso próprio, pressões prescritas e resultantes de sobrecarga — implementados**, com casos independentes e rastreabilidade. Próxima entrega: consolidar a entrada mecânica por fatia (orientação, material/modo de resistência da base, pressão usada e forças de água), fechando o recorte pendente de R0/R1/R2 antes do equilíbrio em superfície fixa. Depois, implementar Fellenius como referência e Bishop Simplificado com os casos independentes acordados. A verificação das preparações não substitui a validação das equações de estabilidade.
+6. **Preparações e entrada mecânica por fatia — implementadas**, com casos independentes e rastreabilidade. Próxima entrega: Fellenius em círculo fixo, com parcelas motrizes/resistentes, normal aproximada e diagnósticos. Consolidar antes os critérios numéricos e de admissibilidade pertinentes de R0–R5 e seus casos independentes, sem presumir aceite integral da #30. Depois, Bishop Simplificado com resíduo e convergência. A verificação das preparações não substitui a validação das equações de estabilidade.
 7. Implementar busca circular determinística, progresso, cancelamento, inspeção por fatia e memória rastreável. Vincular resultados à revisão de entrada e invalidá-los quando ela mudar.
 8. Especificar métodos rigorosos, superfícies não circulares e estabilidade com reforços. Especificar separadamente verificações/dimensionamento das contenções.
 

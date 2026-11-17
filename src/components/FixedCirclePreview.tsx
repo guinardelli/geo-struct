@@ -14,6 +14,8 @@ import { prepareSlicePressures } from "../core/slice-pressures";
 import { SlicePressureInspection } from "./SlicePressureInspection";
 import { prepareSliceLoads } from "../core/slice-loads";
 import { SliceLoadInspection } from "./SliceLoadInspection";
+import { prepareSliceMechanics } from "../core/slice-mechanics";
+import { SliceMechanicsInspection } from "./SliceMechanicsInspection";
 
 export type GeometryFields = { tolerance: string; angle: string };
 export type FixedCirclePreviewProps = {
@@ -85,6 +87,17 @@ export function FixedCirclePreview({
     input.surface.mode === "fixed" &&
     !dirty &&
     !!values.tolerance.trim();
+  const mechanics = useMemo(
+    () =>
+      result?.status === "prepared"
+        ? prepareSliceMechanics(preparation, result, {
+            weights,
+            pressures,
+            loads,
+          })
+        : null,
+    [preparation, result, weights, pressures, loads],
+  );
   const prepare = () => {
     if (!allowed) return;
     onPrepare(
@@ -230,6 +243,20 @@ export function FixedCirclePreview({
                 ))}
               </ul>
             )}
+            {!dirty && mechanics?.status === "prepared" && (
+              <p aria-label="Entrada mecânica preparada">
+                Entrada mecânica consolidada:{" "}
+                {mechanics.mechanics.slices.length} fatias no sentido do
+                movimento. Sem equilíbrio ou FS.
+              </p>
+            )}
+            {!dirty && mechanics?.status === "blocked" && (
+              <ul aria-label="Diagnósticos da entrada mecânica">
+                {mechanics.diagnostics.map((d, i) => (
+                  <li key={i}>{d.message}</li>
+                ))}
+              </ul>
+            )}
             <button
               className="secondary"
               type="button"
@@ -247,8 +274,9 @@ export function FixedCirclePreview({
         )}
         <p className="hint">
           Preparação de geometria, peso próprio, pressões prescritas e
-          resultantes de sobrecargas. Forças de água, equilíbrio e fator de
-          segurança ainda não calculados.
+          resultantes de sobrecargas. A entrada mecânica reúne os parâmetros da
+          base e as parcelas de água. Equilíbrio e fator de segurança ainda não
+          calculados.
         </p>
       </section>
       {table && !dirty && result?.status === "prepared" && (
@@ -337,6 +365,7 @@ export function FixedCirclePreview({
               <SliceWeightInspection result={weights} input={input} />
             )}
             {loads && <SliceLoadInspection result={loads} />}
+            {mechanics && <SliceMechanicsInspection result={mechanics} />}
             <details>
               <summary>Origem dos cortes</summary>
               <div className="materials-table-wrap slice-table-wrap">
