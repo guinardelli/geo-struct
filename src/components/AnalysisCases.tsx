@@ -477,8 +477,8 @@ export function CaseInspector({
             </p>
           </fieldset>
           <div className="info-card">
-            Prévia de entradas, sem cálculo. A admissibilidade do círculo e o
-            resultado da busca ainda não são verificados.
+            Entradas aplicadas para preparar as fatias e o peso próprio. Não há
+            fator de segurança ou resultado de busca.
           </div>
           <CoreInputPreview
             prepared={geometryPreview.preparation}

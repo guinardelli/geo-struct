@@ -91,6 +91,12 @@ O salvamento usa `geostruct/4`. Arquivos e recuperações das versões 1, 2 e 3 
 
 **Fechar projeto** retorna à tela inicial, protegendo alterações. Fechar normalmente remove sua recuperação local. Fechar a janela/browser sem resolver alterações exibe a proteção da plataforma. Bloqueio de armazenamento local é comunicado; salvar arquivo continua disponível.
 
+## Preparar fatias e peso próprio — versão em desenvolvimento
+
+Selecione um caso com círculo fixo e abra **Geometria do círculo fixo** nas propriedades. Informe a tolerância geométrica e use **Preparar fatias**. Em **Inspecionar fatias**, consulte **Áreas por material** e **Pesos por fatia**. O peso próprio é a soma de γ total × área, em kN/m, por metro de largura fora do plano. Os painéis apresentam totais, composição e origem por material; a tabela geral mostra cada peso de fatia.
+
+Se faltar γ, complete o material indicado e prepare novamente; as áreas continuam disponíveis durante a pendência. Rascunhos precisam ser aplicados ou descartados. Alterações aplicadas nas entradas exigem nova preparação. As prévias ficam na sessão e não alteram o arquivo do projeto. Pressões, sobrecargas, equilíbrio e FS ainda não são calculados.
+
 ## Documentar
 
 **Relatório de entradas** reúne todas as seções, materiais e fontes, coordenadas, água, cargas, círculo, casos e diagnósticos. Os casos registram condições resolvidas, lançamentos ativos, limites e dados guardados, sempre sem resultados de cálculo. Imprimir/PDF usa a impressão disponível no navegador/sistema. **Exportar HTML** fornece uma versão portátil. **Exportar desenho** salva SVG da vista atual; a extensão não contém o modelo editável completo, que pertence ao `.geo.json`.

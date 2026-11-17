@@ -54,7 +54,9 @@ O App mantém apenas uma prévia em memória e a apresenta quando sua revisão c
 
 `src/core/material-areas.ts` decompõe as fatias por varredura vertical das regiões em coordenadas locais. Integra os intervalos de cada origem e os intervalos livres de fundo, preservando o arco analítico. Agrupa materiais por ID, mantém as parcelas por região/fundo e confere a soma contra a área geométrica, sem ajustar resíduos. Limites internos não alteram as fatias existentes. O contrato `geostruct-fixed-geometry/2` inclui essa composição e seu balanço; `MaterialAreaInspection` apresenta totais e a fatia selecionada. Falhas de atribuição, topologia, conservação ou capacidade retornam diagnóstico sem geometria parcial. Veja [Áreas por material](AREAS-POR-MATERIAL.md).
 
-O arquivo permanece v4; snapshots, perfil geométrico e fatias não são persistidos. Normalização para os métodos, perfil de convergência, pesos, pressões, forças e equações dependem do fechamento das regras das issues #30/#31. A busca futura deverá executar em Worker com progresso e cancelamento. Não há solver simulado, regra de FS mínimo ou sinalização de aprovação de estabilidade.
+`src/core/slice-weights.ts` consome a entrada e a geometria de mesma revisão, aplicando o peso específico total de cada subárea conforme D2. O contrato imutável `geostruct-slice-weights/1` conserva o perfil geométrico, γ, origem e pesos por fatia/material/região em kN/m. Só materiais com contribuição positiva exigem γ. Falhas retornam pesos nulos e diagnósticos, sem bloquear a geometria válida. `FixedCirclePreview` deriva os pesos do resultado vigente; `SliceWeightInspection` apresenta as parcelas. Veja [Pesos das fatias](PESOS-DAS-FATIAS.md).
+
+O arquivo permanece v4; snapshots, perfil geométrico, fatias e pesos não são persistidos. Normalização para os métodos, perfil de convergência, pressões, resultantes de sobrecarga e equações dependem do fechamento das regras das issues #30/#31. A busca futura deverá executar em Worker com progresso e cancelamento. Não há solver simulado, regra de FS mínimo ou sinalização de aprovação de estabilidade.
 
 ## Conferência integrada dos lançamentos
 

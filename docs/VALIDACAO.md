@@ -36,6 +36,12 @@ Os fluxos Chromium verificam criação, edição, rascunhos, desenho/cancelament
 
 ## Limites
 
+### Peso próprio das fatias
+
+Os casos independentes verificam `2 × 18 + 3 × 20 = 96 kN/m`, área analítica de segmento circular homogêneo, estratos horizontais e inclusão de área conhecida acima da base. Conferem γ por material/ID, parcelas por região/fundo, totais, precisão sem arredondamento intermediário, refinamento, escala, translação e espelhamento. Cobrem γ nulo/inválido, material sem contribuição, perda de representação, somas não finitas, origem inconsistente, revisão, imutabilidade e arquivo preservado. Água, sobrecargas e modos de resistência não alteram o peso específico informado ou acrescentam forças ao peso próprio.
+
+Os fluxos Chromium verificam consulta por material/fatia na janela mínima, rascunhos, isolamento entre casos, refinamento, edição de γ, desfazer/refazer, dados ausentes e salvamento sem resultados no arquivo. A geometria continua disponível quando os pesos estão bloqueados. São verificações do recorte de D2; não validam pressão, equilíbrio, FS ou estabilidade. Ver [Pesos das fatias](PESOS-DAS-FATIAS.md).
+
 ### Áreas por material
 
 Os casos próprios comparam estratos horizontais e inclinados com áreas analíticas de segmentos circulares, divisões verticais com meias áreas e inclusões retangulares, triangulares e côncavas com áreas conhecidas. Conferem composição por fatia e global, fundo, origens, materiais distintos de mesmo nome, material compartilhado entre regiões, falta de atribuição acima da base, regiões sem contribuição, áreas finas positivas, interfaces subdivididas e limites antes da expansão. Refinamento, ordem, orientação dos contornos, escala, translação e espelhamento preservam as áreas esperadas. Uma discrepância deliberada não é corrigida por redistribuição. Os fluxos de interface verificam consulta por material/fatia, rascunhos/revisão, atribuição, desfazer/refazer e arquivo preservado. Não há validação de pesos, pressões ou FS. Ver [Áreas por material](AREAS-POR-MATERIAL.md).

@@ -36,6 +36,10 @@ Contrato `geostruct-input/1`, adaptador de casos, cópia imutável, origem dos d
 
 Decomposição de cada fatia em subáreas até o arco, incluindo regiões côncavas, inclusões que não tocam a base, interfaces compartilhadas e solo de fundo. Agregação por ID com origem das parcelas, conservação por fatia e global, limites de capacidade e inspeção na interface. O contrato geométrico passa a `geostruct-fixed-geometry/2`, sem alterar o projeto v4. Sem pesos ou propriedades equivalentes. Ver [Áreas por material](AREAS-POR-MATERIAL.md).
 
+### Peso próprio por material e fatia — implementado
+
+Aplicação do recorte aprovado de D2: soma de peso específico total × subárea, em kN/m, sem usar apenas o material da base ou inferir γ seco/saturado/submerso. Contrato independente `geostruct-slice-weights/1`, com revisão/perfil, totais e origem de cada parcela. γ ausente preserva as áreas e bloqueia os pesos, sem total parcial. Inspeção, rascunhos, histórico e arquivo v4 preservados. Ver [Pesos das fatias](PESOS-DAS-FATIAS.md). Pressões, sobrecargas e equilíbrio permanecem pendentes.
+
 ### Referências e decisões
 
 - [#28 — Roadmap](https://github.com/ricardocorsini/openstruct-front/issues/28): primeiro motor determinístico 2D, superfícies circulares, Mohr–Coulomb, Fellenius e Bishop Simplificado.
@@ -51,8 +55,8 @@ Os testes de modelagem deste repositório não substituem os casos geotécnicos 
 2. Materiais, atribuição explícita, água e sobrecargas: implementados no recorte inicial. As regras físicas que combinam materiais/água dependem do contrato do motor.
 3. Casos de análise: implementados no recorte de cadastro e prévia, com identidade própria e vínculo à seção.
 4. **Conferência integrada e distribuição 0.1.0 — implementadas:** escopos por seção/caso, dependências compartilhadas, navegação, relatório, limite de arquivo simétrico e instaladores Windows/Linux disponíveis no Launcher. A homologação manual nativa completa continua pendente.
-5. **Contrato de transferência de entradas — implementado.** Concluir a especificação #30 e o catálogo #31 antes de avançar nas regras físicas: perfis numéricos, tratamento das faces verticais, materiais/água e comportamento de falhas.
-6. **Interseções, fatias e subáreas por material — implementadas**, com casos analíticos próprios e conservação da área. Próxima entrega: consolidar as regras e preparar pesos por material; depois água, cargas e cálculo em superfície fixa com referências independentes. A validação de geometria não substitui a validação das forças ou das equações.
+5. **Contrato de transferência de entradas — implementado.** O recorte aprovado de D2 já sustenta o peso próprio. Concluir as regras restantes da especificação #30 e o catálogo #31 para os próximos cálculos: perfis numéricos, tratamento das faces verticais, água e comportamento de falhas.
+6. **Interseções, fatias, subáreas e peso próprio — implementados**, com casos independentes e rastreabilidade. Próxima entrega: consolidar e preparar pressões da linha piezométrica nas bases, incluindo cobertura e hipóteses de água; depois resultantes de sobrecarga e cálculo em superfície fixa. A verificação dessas preparações não substitui a validação das equações de estabilidade.
 7. Implementar busca circular determinística, progresso, cancelamento, inspeção por fatia e memória rastreável. Vincular resultados à revisão de entrada e invalidá-los quando ela mudar.
 8. Especificar métodos rigorosos, superfícies não circulares e estabilidade com reforços. Especificar separadamente verificações/dimensionamento das contenções.
 

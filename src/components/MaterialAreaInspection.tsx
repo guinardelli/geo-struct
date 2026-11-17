@@ -81,7 +81,7 @@ export function MaterialAreaInspection({
       <summary>Áreas por material</summary>
       <p>
         Composição entre o terreno e o arco. O material da base é identificado
-        separadamente; as áreas ainda não são pesos.
+        separadamente. Os pesos próprios estão no painel Pesos por fatia.
       </p>
       <h3>Totais da massa</h3>
       {table("Áreas totais por material", geometry.materialAreas)}

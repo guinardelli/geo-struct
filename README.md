@@ -66,16 +66,16 @@ npm run format:check
 
 Testes de domínio verificam geometrias, limites dos parâmetros, arquivos, referências e histórico. Os testes de interface cobrem fluxos de edição e persistência. São verificações de software de modelagem; não validam um solver geotécnico.
 
-| Caminho           | Responsabilidade                                               |
-| ----------------- | -------------------------------------------------------------- |
-| `src/domain/`     | Modelo, validação geométrica e histórico, sem React ou Tauri   |
-| `src/core/`       | Contrato independente das entradas do futuro núcleo de cálculo |
-| `src/components/` | Ribbon, navegador, editor gráfico, propriedades e relatório    |
-| `src/lib/`        | Entrada e saída local, com adaptadores web e desktop           |
-| `src-tauri/`      | Janela nativa, permissões, identidade e empacotamento          |
-| `tests/`          | Testes de domínio e fluxos Playwright                          |
-| `examples/`       | Exemplo próprio de modelagem                                   |
-| `docs/`           | Guia, arquitetura, escopo e validação                          |
+| Caminho           | Responsabilidade                                             |
+| ----------------- | ------------------------------------------------------------ |
+| `src/domain/`     | Modelo, validação geométrica e histórico, sem React ou Tauri |
+| `src/core/`       | Entradas, geometria das fatias, subáreas e peso próprio      |
+| `src/components/` | Ribbon, navegador, editor gráfico, propriedades e relatório  |
+| `src/lib/`        | Entrada e saída local, com adaptadores web e desktop         |
+| `src-tauri/`      | Janela nativa, permissões, identidade e empacotamento        |
+| `tests/`          | Testes de domínio e fluxos Playwright                        |
+| `examples/`       | Exemplo próprio de modelagem                                 |
+| `docs/`           | Guia, arquitetura, escopo e validação                        |
 
 Consulte [Guia de uso](docs/GUIA-DE-USO.md), [Arquitetura](docs/ARQUITETURA.md), [Escopo e evolução](docs/ESCOPO-E-ROADMAP.md), [Validação](docs/VALIDACAO.md) e [histórico](CHANGELOG.md).
 
@@ -83,13 +83,15 @@ O [contrato de materiais e migração](docs/MATERIAIS-E-FORMATO.md) descreve os 
 
 O [contrato de água e cargas](docs/AGUA-E-CARGAS.md) descreve as condições, os lançamentos ativos/inativos e a migração para v3. Desativar preserva os dados; água ou cargas ausentes em um arquivo antigo ficam como não definidas.
 
-O [contrato de casos de análise](docs/CASOS-DE-ANALISE.md) descreve a associação à seção, as condições próprias dos cenários e o formato v4. Os casos ainda não executam cálculo ou busca.
+O [contrato de casos de análise](docs/CASOS-DE-ANALISE.md) descreve a associação à seção, as condições próprias dos cenários e o formato v4. Os casos ainda não executam equilíbrio, cálculo de FS ou busca.
 
 Na versão em desenvolvimento, selecione um caso e abra **Entradas para o núcleo**, nas propriedades, para conferir os dados aplicados e suas pendências. O [contrato de entradas](docs/ENTRADAS-DO-NUCLEO.md) reúne condições efetivas, materiais usados, unidades e origem em uma cópia imutável, com revisão que detecta alterações posteriores.
 
-Em **Geometria do círculo fixo**, informe a tolerância em metros e use **Preparar fatias**. A prévia mostra cortes, arco e tabela de áreas/comprimentos, com refinamento angular de até 3°. Alterações nas entradas ocultam a geometria anterior. O [contrato geométrico](docs/GEOMETRIA-DO-CIRCULO.md) documenta interseções, faces verticais, cortes obrigatórios, limitações e casos analíticos. O arquivo permanece v4; perfil e prévia ficam apenas na sessão. Ainda não há forças ou FS. Estas alterações serão distribuídas em uma próxima versão.
+Em **Geometria do círculo fixo**, informe a tolerância em metros e use **Preparar fatias**. A prévia mostra cortes, arco e tabela de áreas/comprimentos, com refinamento angular de até 3°. Alterações nas entradas ocultam a geometria anterior. O [contrato geométrico](docs/GEOMETRIA-DO-CIRCULO.md) documenta interseções, faces verticais, cortes obrigatórios, limitações e casos analíticos. O arquivo permanece v4; perfil e prévia ficam apenas na sessão. Ainda não há equilíbrio ou FS. Estas alterações serão distribuídas em uma próxima versão.
 
-Na inspeção, abra **Áreas por material** para consultar os totais e a composição de uma fatia. As parcelas preservam suas regiões de origem e o solo de fundo, incluindo materiais acima da base. A soma é conferida contra a área até o arco, sem ajustes para forçar o fechamento. Consulte o [contrato das subáreas](docs/AREAS-POR-MATERIAL.md). O cálculo de pesos será uma próxima etapa.
+Na inspeção, abra **Áreas por material** para consultar os totais e a composição de uma fatia. As parcelas preservam suas regiões de origem e o solo de fundo, incluindo materiais acima da base. A soma é conferida contra a área até o arco, sem ajustes para forçar o fechamento. Consulte o [contrato das subáreas](docs/AREAS-POR-MATERIAL.md).
+
+**Preparar fatias** também calcula o peso próprio como a soma de γ total × área de cada material, em kN/m. Abra **Pesos por fatia** para conferir áreas, γ, origem e parcelas. Um γ ausente bloqueia os pesos, preservando a inspeção geométrica; não há preenchimento automático. Água e sobrecargas não são adicionadas ao peso próprio. O [contrato de pesos](docs/PESOS-DAS-FATIAS.md) documenta o recorte aprovado de D2, as fontes e os casos independentes. Pressões, resultantes de sobrecarga e equações de estabilidade são etapas posteriores.
 
 ## Origem e referências
 

@@ -43,4 +43,4 @@ Selecionar o caso, abrir **Geometria do círculo fixo**, informar a tolerância 
 
 O arquivo permanece `geostruct/4`. Perfil de prévia e resultados são dados da sessão, não são gravados no projeto. O resultado registra a revisão exata de entrada, a versão do contrato geométrico e o perfil usado. A geometria preparada não constitui admissibilidade mecânica ou aprovação de estabilidade.
 
-As subáreas por material estão implementadas no contrato 2. O próximo passo é consolidar e preparar pesos, água e cargas conforme a especificação aprovada, antes de implementar Fellenius/Bishop e os casos independentes de FS.
+As subáreas por material estão implementadas no contrato 2 e alimentam o [contrato independente de peso próprio](PESOS-DAS-FATIAS.md). O próximo passo é consolidar e preparar pressões de água, depois resultantes de sobrecarga conforme as regras aprovadas, antes de implementar Fellenius/Bishop e os casos independentes de FS.

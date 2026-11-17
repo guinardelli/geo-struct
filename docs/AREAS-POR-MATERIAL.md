@@ -31,4 +31,4 @@ Os casos próprios verificam estratos horizontais com áreas de segmentos circul
 
 Prepare o círculo como antes e abra **Inspecionar fatias → Áreas por material**. Consulte os totais e selecione uma fatia para conferir sua composição, origens e diferença de conservação. Alterar o cadastro ou o perfil exige nova preparação.
 
-O próximo passo é preparar os pesos a partir dessas áreas e dos pesos específicos totais explicitamente informados, com as regras físicas e casos independentes correspondentes. Água, sobrecargas e equações de estabilidade continuam etapas posteriores.
+Essas áreas alimentam a etapa independente de [pesos próprios](PESOS-DAS-FATIAS.md), pelos pesos específicos totais explicitamente informados. O contrato geométrico continua sem grandezas mecânicas. Pressões, sobrecargas e equações de estabilidade continuam etapas posteriores.

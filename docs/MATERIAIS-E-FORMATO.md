@@ -19,6 +19,8 @@ Os limites numéricos são controles de entrada já adotados pelo cadastro, não
 
 O modo muda os rótulos c′/φ′ ou c/φ e preserva os números. Não converte parâmetros, não impõe φ = 0 e não presume condição drenada/não drenada. O peso específico continua como um único valor total informado; estados seco/saturado/submerso e tratamento físico de água dependem da especificação do motor. O cadastro da condição de água é descrito em [Água e cargas](AGUA-E-CARGAS.md). Nenhum desses valores é deduzido nesta entrega.
 
+Na versão em desenvolvimento, a preparação de [pesos próprios das fatias](PESOS-DAS-FATIAS.md) usa esse γ total em cada subárea, inclusive acima da base. Não aplica redução por água, conversão pelo modo de resistência ou estimativa de parâmetro ausente. γ pendente em um material com área positiva bloqueia somente os pesos; a geometria permanece disponível. Coesão, atrito, modo e origem continuam com suas pendências próprias de cadastro.
+
 ## Atribuições e operações
 
 Cada seção guarda `backgroundMaterialId`; cada região guarda `materialId`. Uma referência válida aponta para o cadastro do projeto. `null` significa **sem material atribuído**, não vazio físico, água ou escavação. Novas seções e regiões começam nulas; desenhos podem ser salvos e completados depois. As pendências aparecem na árvore, propriedades, desenho, conferência e relatório.

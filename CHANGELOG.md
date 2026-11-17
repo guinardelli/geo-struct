@@ -1,5 +1,12 @@
 # Histórico
 
+## Em desenvolvimento — peso próprio das fatias
+
+- Preparação de `Wi = Σ γj Aij`, em kN/m, pelo peso específico total informado de cada material; recorte de D2 documentado com fontes e casos independentes.
+- Inspeção dos pesos por fatia/material, áreas, γ e origem das parcelas, incluindo materiais acima da base. Peso próprio na tabela geral e total no inspetor.
+- γ ausente bloqueia somente os pesos; áreas continuam disponíveis. Sem inferir propriedades, aplicar redução por água ou somar sobrecargas ao peso próprio.
+- Contrato independente e imutável `geostruct-slice-weights/1`, vinculado à revisão/perfil; rascunhos, edição, desfazer/refazer e formato v4 preservados. Testes aritméticos, analíticos e de interface. Sem equilíbrio ou FS; distribuição em uma próxima versão.
+
 ## Em desenvolvimento — áreas por material
 
 - Partição geométrica das fatias por material, com integração até o arco, regiões côncavas, inclusões acima da base e fundo integrado nos intervalos livres.

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { InputPreparation } from "../core/input";
 import {
   prepareFixedCircleGeometry,
@@ -8,6 +8,8 @@ import {
 import { parseNumber } from "../domain/geometry";
 import { Dialog } from "./Dialog";
 import { MaterialAreaInspection } from "./MaterialAreaInspection";
+import { prepareSliceWeights } from "../core/slice-weights";
+import { SliceWeightInspection } from "./SliceWeightInspection";
 
 export type GeometryFields = { tolerance: string; angle: string };
 export type FixedCirclePreviewProps = {
@@ -39,6 +41,18 @@ export function FixedCirclePreview({
   onPrepare,
 }: FixedCirclePreviewProps) {
   const [table, setTable] = useState(false);
+  const weights = useMemo(
+    () =>
+      result?.status === "prepared"
+        ? prepareSliceWeights(preparation, result)
+        : null,
+    [preparation, result],
+  );
+  const weightsBySlice = new Map(
+    !dirty && weights?.status === "prepared"
+      ? weights.weights.slices.map((s) => [s.number, s.weightKNPerM])
+      : [],
+  );
   const input = preparation.snapshot?.input;
   const allowed =
     !!input &&
@@ -136,6 +150,25 @@ export function FixedCirclePreview({
               <strong>{result.geometry.slices.length} fatias preparadas</strong>{" "}
               · área geométrica: {number(result.geometry.areaM2)} m².
             </p>
+            {!dirty && weights?.status === "prepared" && (
+              <p aria-label="Peso próprio total">
+                Peso próprio total:{" "}
+                <strong>
+                  {number(weights.weights.totalWeightKNPerM)} kN/m
+                </strong>
+                , por metro de largura fora do plano.
+              </p>
+            )}
+            {!dirty && weights?.status === "blocked" && (
+              <>
+                <p>Pesos não preparados; as áreas continuam disponíveis.</p>
+                <ul aria-label="Diagnósticos dos pesos">
+                  {weights.diagnostics.map((d, i) => (
+                    <li key={i}>{d.message}</li>
+                  ))}
+                </ul>
+              </>
+            )}
             <button
               className="secondary"
               type="button"
@@ -152,16 +185,16 @@ export function FixedCirclePreview({
           </p>
         )}
         <p className="hint">
-          Preparação geométrica, sem forças ou fator de segurança. Não comprova
-          admissibilidade mecânica ou estabilidade.
+          Preparação de geometria e peso próprio. Pressões, sobrecargas e fator
+          de segurança ainda não calculados.
         </p>
       </section>
-      {table && result?.status === "prepared" && (
+      {table && !dirty && result?.status === "prepared" && (
         <Dialog
           title="Inspeção das fatias"
           wide
           onClose={() => setTable(false)}
-          description="Coordenadas originais X/Z. Áreas até o arco circular; inclinação geométrica da corda em relação a +X. Não há cálculo de forças ou FS."
+          description="Coordenadas originais X/Z. Áreas até o arco circular e peso próprio pelos materiais. Inclinação geométrica da corda em relação a +X. Sem equações de equilíbrio ou FS."
         >
           <div className="slice-inspection">
             <p>
@@ -198,6 +231,7 @@ export function FixedCirclePreview({
                     <th>Corda (m)</th>
                     <th>Inclinação +X (°)</th>
                     <th>Material na base</th>
+                    <th>Peso próprio (kN/m)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -212,6 +246,11 @@ export function FixedCirclePreview({
                       <td>{number(s.chordLengthM)}</td>
                       <td>{number((s.chordAngleRadians * 180) / Math.PI)}</td>
                       <td>{material(s.baseMaterialId)}</td>
+                      <td>
+                        {weightsBySlice.has(s.number)
+                          ? number(weightsBySlice.get(s.number)!)
+                          : "Pendente"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -222,6 +261,9 @@ export function FixedCirclePreview({
                 geometry={result.geometry}
                 input={input}
               />
+            )}
+            {input && weights && (
+              <SliceWeightInspection result={weights} input={input} />
             )}
             <details>
               <summary>Origem dos cortes</summary>
