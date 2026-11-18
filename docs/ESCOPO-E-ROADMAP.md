@@ -20,7 +20,7 @@ Condição de água explícita (não definida, seca ou piezométrica), peso espe
 
 ### Casos de análise — implementado
 
-Cadastro, duplicação e exclusão de casos por seção, com hipóteses, sentido de deslizamento e escolha dos métodos pretendidos. Condições próprias de água e seleção de faixas, além de herança explícita das condições atuais da seção. Círculo fixo por desenho/coordenadas ou cópia explícita do círculo de tentativa. Limites e passos informados para centros X/Z e raios, preservados ao alternar o modo. Prévia de entradas, conferência, relatório e formato `geostruct/4`, com leitura de v1/v2/v3. A geometria e os materiais são compartilhados, e a edição das faixas afeta os casos que as usam. Não há geração de candidatos, admissibilidade, perfil numérico, cálculo ou resultados. Ver [Casos de análise](CASOS-DE-ANALISE.md).
+Cadastro, duplicação e exclusão de casos por seção, com hipóteses, sentido de deslizamento e escolha dos métodos pretendidos. Condições próprias de água e seleção de faixas, além de herança explícita das condições atuais da seção. Círculo fixo por desenho/coordenadas ou cópia explícita do círculo de tentativa. Limites e passos informados para centros X/Z e raios, preservados ao alternar o modo. Prévia de entradas, conferência, relatório e formato `geostruct/4`, com leitura de v1/v2/v3. A geometria e os materiais são compartilhados, e a edição das faixas afeta os casos que as usam. A classificação e os cálculos consomem o caso aplicado. Ver [Casos de análise](CASOS-DE-ANALISE.md).
 
 ## Base técnica
 
@@ -60,6 +60,10 @@ Variante projetada de D1, normal aproximada, resistência por base, braços pró
 
 Formulação D1 com `ue b` no numerador reduzido, ponto fixo, resíduo no F avaliado, perfil explícito e histórico das tentativas. Singularidade, não convergência, resistência nula e tração possuem diagnósticos próprios. Comparação com Fellenius na mesma entrada/fatias exige limiares comuns iguais e dois resultados positivos admissíveis. Regras e casos em [Bishop em círculo fixo](BISHOP-CIRCULO-FIXO.md); sem busca ou aceite integral da candidata.
 
+### Busca circular determinística — implementada no recorte inicial
+
+D5 orienta a malha de centros X/Z e raios, com preparação compartilhada e classificação por método. A interface mostra progresso, cancelamento, mínimo admissível, bordas, empates e contagens por motivo. A inspeção reproduz o candidato e permite conferir o refinamento das fatias. Veja [Busca circular](BUSCA-CIRCULAR.md).
+
 ### Referências e decisões
 
 - [#28 — Roadmap](https://github.com/ricardocorsini/openstruct-front/issues/28): primeiro motor determinístico 2D, superfícies circulares, Mohr–Coulomb, Fellenius e Bishop Simplificado.
@@ -76,8 +80,8 @@ Os testes de modelagem deste repositório não substituem os casos geotécnicos 
 3. Casos de análise: implementados no recorte de cadastro e prévia, com identidade própria e vínculo à seção.
 4. **Conferência integrada e distribuição 0.1.0 — implementadas:** escopos por seção/caso, dependências compartilhadas, navegação, relatório, limite de arquivo simétrico e instaladores Windows/Linux disponíveis no Launcher. A homologação manual nativa completa continua pendente.
 5. **Contrato de transferência de entradas — implementado.** O recorte aprovado de D2 já sustenta o peso próprio. Concluir as regras restantes da especificação #30 e o catálogo #31 para os próximos cálculos: perfis numéricos, tratamento das faces verticais, água e comportamento de falhas.
-6. **Preparações, entrada mecânica, Fellenius e Bishop em círculo fixo — implementados no recorte documentado.** Próxima entrega: busca circular determinística, com perfil explícito, classificação dos candidatos, progresso/cancelamento e refinamento, após consolidar as regras pertinentes e seus casos independentes. O aceite integral da #30 e o catálogo #31 continuam em revisão.
-7. Implementar busca circular determinística, progresso, cancelamento, inspeção por fatia e memória rastreável. Vincular resultados à revisão de entrada e invalidá-los quando ela mudar.
+6. **Preparações, entrada mecânica, Fellenius e Bishop em círculo fixo — implementados no recorte documentado.**
+7. **Busca circular determinística — implementada no recorte documentado.** Próxima etapa: comparar casos de referência com superfícies conhecidas e malhas refinadas, revisar #30/#31 e preparar a apresentação dos resultados para a distribuição desktop.
 8. Especificar métodos rigorosos, superfícies não circulares e estabilidade com reforços. Especificar separadamente verificações/dimensionamento das contenções.
 
 A distribuição desktop exige revisão nativa, instaladores, notas, catálogo/Launcher e procedimento de atualização. Compilação de CI não publica uma versão e não dispensa essa revisão.

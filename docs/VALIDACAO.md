@@ -42,6 +42,12 @@ Casos analíticos conferem normal projetada, coesão/atrito, força de carga con
 
 Fluxos Chromium cobrem limiares obrigatórios, inspeção na janela mínima, alteração de perfil/dados, rascunho, histórico, isolamento de casos, arquivo sem resultados, resistência nula e tração. As referências, políticas e limites da evidência estão em [Fellenius em círculo fixo](FELLENIUS-CIRCULO-FIXO.md). O benchmark publicado verifica a equação nas fatias transcritas; não valida a reconstrução geométrica ou a busca do exemplo. A admissibilidade de Bishop é verificada separadamente; não há aceite normativo.
 
+### Busca circular
+
+Casos próprios verificam a ordem dos três eixos, ajuste do último ponto pela tolerância, preservação do passo, eixos fixos, limites de representação e recusa de malhas excedentes. Uma classificação com valores de FS prescritos verifica o menor valor sem arredondamento, a primeira ocorrência entre iguais, quase empates, borda amostrada e estados distintos para falha e resistência nula. A malha de um talude compara os candidatos com os mesmos círculos no modo fixo. Casos com água insuficiente ou acima do terreno exercitam os motivos por etapa e a cobertura parcial.
+
+Os fluxos Chromium cobrem a malha, o menor FS por método, os descartes, a inspeção na janela mínima, o refinamento, o cancelamento de um Worker com progresso, o isolamento de casos, o histórico e a preservação do arquivo. Consulte [Busca circular](BUSCA-CIRCULAR.md) para o alcance dos casos.
+
 ### Bishop Simplificado em círculo fixo
 
 O caso de uma fatia compara o ponto fixo com a raiz obtida algebricamente, conserva o braço próprio da carga e verifica equilíbrio vertical/resistência no próprio F retornado. Dez fatias transcritas de Duncan fig. 7.40 reproduzem D, numerador em F = 1,6, solução ≈ 1,61302 e resíduo; o perfil de referência exige cinco avaliações. A fonte da transcrição e suas limitações estão em [Bishop em círculo fixo](BISHOP-CIRCULO-FIXO.md).
@@ -86,7 +92,7 @@ Os testes do adaptador cobrem origem/unidades, conversão X/Z sem espelhamento, 
 
 ### Alcance das verificações
 
-As verificações cobrem o modelador, a preparação e os recortes documentados de Fellenius/Bishop em círculo fixo. Há casos analíticos e reprodução de fatias transcritas da bibliografia; isso não constitui validação integral do solver, da reconstrução das geometrias publicadas ou de uma busca crítica. A revisão independente de engenharia continua nas issues #30/#31 do frontend.
+As verificações cobrem o modelador, as preparações, os recortes de Fellenius/Bishop em círculo fixo e a busca em malha. Os casos analíticos e as fatias transcritas verificam as equações e a classificação nas condições documentadas. A homologação integral em geometrias publicadas e casos de projeto tem escopo próprio. A revisão independente de engenharia continua nas issues #30/#31 do frontend.
 
 Compilar um executável nativo não comprova sua interação com todos os ambientes. Antes de distribuir instaladores, conferir manualmente em Linux e Windows: abrir/salvar, cancelamento de diálogo, permissões, fechamento com alterações, impressão, escala de tela, zoom/pan e teclado. Validar Linux WebKitGTK e Windows WebView2 além do Chromium dos testes.
 

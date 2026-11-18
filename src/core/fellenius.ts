@@ -224,7 +224,7 @@ export function solveFellenius(
         code: "zero-resistance",
         level: "warning",
         message:
-          "Resistência nula em todas as bases: FS = 0 para este círculo. Condição destacada; não há classificação de busca.",
+          "Resistência nula em todas as bases: FS = 0 para este círculo. Condição de resistência nula destacada.",
       });
       return freeze(
         structuredClone({

@@ -18,12 +18,28 @@ import {
 
 /** Limite operacional da avaliação síncrona; não é parâmetro geotécnico. */
 export const MAX_BISHOP_ITERATIONS = 1000;
-export type BishopProfile = EquilibriumProfile & {
+export type BishopIterationProfile = {
   initialFactor: number;
   residualTolerance: number;
   maxIterations: number;
   singularityThreshold: number;
 };
+export type BishopProfile = EquilibriumProfile & BishopIterationProfile;
+export function isBishopIterationProfileValid(
+  profile: BishopIterationProfile,
+): boolean {
+  return (
+    Number.isFinite(profile.initialFactor) &&
+    profile.initialFactor > 0 &&
+    Number.isFinite(profile.residualTolerance) &&
+    profile.residualTolerance > 0 &&
+    Number.isInteger(profile.maxIterations) &&
+    profile.maxIterations >= 1 &&
+    profile.maxIterations <= MAX_BISHOP_ITERATIONS &&
+    Number.isFinite(profile.singularityThreshold) &&
+    profile.singularityThreshold >= 0
+  );
+}
 type ValidatedSlice = ReturnType<typeof validateMechanicalSlice>;
 export type BishopIteration = {
   iteration: number;
@@ -112,17 +128,7 @@ export function solveBishop(
       }),
     );
   try {
-    if (
-      !Number.isFinite(profile.initialFactor) ||
-      profile.initialFactor <= 0 ||
-      !Number.isFinite(profile.residualTolerance) ||
-      profile.residualTolerance <= 0 ||
-      !Number.isInteger(profile.maxIterations) ||
-      profile.maxIterations < 1 ||
-      profile.maxIterations > MAX_BISHOP_ITERATIONS ||
-      !Number.isFinite(profile.singularityThreshold) ||
-      profile.singularityThreshold < 0
-    )
+    if (!isBishopIterationProfileValid(profile))
       fail(
         "invalid-profile",
         `Informe F₀ e τF finitos e positivos, K inteiro de 1 a ${MAX_BISHOP_ITERATIONS} e τm finito não negativo.`,

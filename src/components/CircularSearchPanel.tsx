@@ -1,0 +1,408 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MAX_BISHOP_ITERATIONS } from "../core/bishop";
+import type {
+  CircularSearchProfile,
+  SearchCircleEvaluation,
+  SearchMethod,
+  SearchProgress,
+} from "../core/circular-search";
+import type { FixedCircleGeometry } from "../core/fixed-circle";
+import type { InputPreparation } from "../core/input";
+import {
+  MAX_SEARCH_CANDIDATES,
+  prepareSearchGrid,
+  type SearchLocation,
+} from "../core/search-grid";
+import { parseNumber } from "../domain/geometry";
+import { startSearchWorker } from "../lib/circular-search-client";
+import {
+  CircularSearchResults,
+  CircularSearchTable,
+  type CompletedSearch,
+} from "./CircularSearchResults";
+import { Dialog } from "./Dialog";
+import { SearchCircleInspection } from "./SearchCircleInspection";
+
+export type SearchOverlay = {
+  inputRevision: string;
+  geometry: FixedCircleGeometry;
+};
+type RunState =
+  | { status: "idle" }
+  | { status: "running" | "cancelled"; progress: SearchProgress }
+  | { status: "failed"; message: string }
+  | { status: "completed"; result: CompletedSearch };
+type Inspection =
+  | { kind: "list" }
+  | {
+      kind: "circle";
+      location: SearchLocation;
+      method: SearchMethod | null;
+      detail: SearchCircleEvaluation | null;
+      error?: string;
+    };
+
+const fields = {
+  toleranceM: "Tolerância geométrica (m)",
+  maxArcDegrees: "Abertura máxima por fatia (°)",
+  drivingThresholdKNPerM: "Limiar motriz τD (kN/m)",
+  tensionToleranceKPa: "Tolerância de tração τt (kPa)",
+  nearTieTolerance: "Faixa de quase empate em FS",
+  initialFactor: "Fator inicial F₀",
+  residualTolerance: "Tolerância do resíduo τF",
+  maxIterations: "Máximo de avaliações K",
+  singularityThreshold: "Limiar de singularidade τm",
+};
+type Field = keyof typeof fields;
+const initial: Record<Field, string> = {
+  toleranceM: "",
+  maxArcDegrees: "3",
+  drivingThresholdKNPerM: "",
+  tensionToleranceKPa: "",
+  nearTieTolerance: "",
+  initialFactor: "",
+  residualTolerance: "",
+  maxIterations: "",
+  singularityThreshold: "",
+};
+
+export function CircularSearchPanel({
+  preparation,
+  dirty,
+  onPreview,
+}: {
+  preparation: InputPreparation;
+  dirty: boolean;
+  onPreview: (overlay: SearchOverlay | null) => void;
+}) {
+  const [values, setValues] = useState(initial);
+  const [run, setRun] = useState<RunState>({ status: "idle" });
+  const [inspection, setInspection] = useState<Inspection | null>(null);
+  const [visibleNumber, setVisibleNumber] = useState<number | null>(null);
+  const worker = useRef<(() => void) | null>(null);
+  const stopWorker = useCallback(() => {
+    worker.current?.();
+    worker.current = null;
+  }, []);
+  const reset = useCallback(() => {
+    stopWorker();
+    setRun({ status: "idle" });
+    setInspection(null);
+    setVisibleNumber(null);
+    onPreview(null);
+  }, [stopWorker, onPreview]);
+  useEffect(() => {
+    if (dirty) reset();
+  }, [dirty, reset]);
+  useEffect(
+    () => () => {
+      stopWorker();
+      onPreview(null);
+    },
+    [stopWorker, onPreview],
+  );
+
+  const input = preparation.snapshot?.input;
+  const bounds = input?.surface.mode === "search" ? input.surface.axes : null;
+  const hasBishop = input?.analysis.methods.includes("bishop") ?? false;
+  const toleranceM = parseNumber(values.toleranceM);
+  const grid = useMemo(
+    () =>
+      bounds && values.toleranceM.trim()
+        ? prepareSearchGrid(bounds, toleranceM ?? NaN)
+        : null,
+    [bounds, toleranceM, values.toleranceM],
+  );
+  const completed =
+    !dirty &&
+    run.status === "completed" &&
+    run.result.inputRevision === preparation.snapshot?.revision
+      ? run.result
+      : null;
+  const running = !dirty && run.status === "running";
+
+  const start = () => {
+    if (dirty || running || grid?.status !== "ready") return;
+    reset();
+    const read = (key: Field) => parseNumber(values[key]) ?? NaN;
+    const profile: CircularSearchProfile = {
+      geometry: {
+        toleranceM: read("toleranceM"),
+        maxArcDegrees: read("maxArcDegrees"),
+      },
+      equilibrium: {
+        drivingThresholdKNPerM: read("drivingThresholdKNPerM"),
+        tensionToleranceKPa: read("tensionToleranceKPa"),
+      },
+      nearTieTolerance: read("nearTieTolerance"),
+      bishop: hasBishop
+        ? {
+            initialFactor: read("initialFactor"),
+            residualTolerance: read("residualTolerance"),
+            maxIterations: read("maxIterations"),
+            singularityThreshold: read("singularityThreshold"),
+          }
+        : null,
+    };
+    setRun({
+      status: "running",
+      progress: { completed: 0, total: grid.grid.total },
+    });
+    try {
+      worker.current = startSearchWorker(
+        { type: "run", preparation, profile },
+        (response) => {
+          if (response.type === "progress") {
+            setRun({ status: "running", progress: response.progress });
+          } else {
+            worker.current = null;
+            if (response.type === "result") {
+              const result = response.result;
+              setRun(
+                result.status === "completed"
+                  ? { status: "completed", result }
+                  : { status: "failed", message: result.diagnostic.message },
+              );
+            } else if (response.type === "error")
+              setRun({ status: "failed", message: response.message });
+          }
+        },
+      );
+    } catch {
+      setRun({
+        status: "failed",
+        message: "Não foi possível iniciar a busca em segundo plano.",
+      });
+    }
+  };
+
+  const inspect = (location: SearchLocation, method: SearchMethod | null) => {
+    if (!completed) return;
+    stopWorker();
+    const pending = { kind: "circle" as const, location, method, detail: null };
+    setInspection(pending);
+    try {
+      worker.current = startSearchWorker(
+        { type: "inspect", preparation, profile: completed.profile, location },
+        (response) => {
+          if (response.type === "progress") return;
+          worker.current = null;
+          if (response.type === "detail")
+            setInspection({ ...pending, detail: response.detail });
+          else if (response.type === "error")
+            setInspection({ ...pending, error: response.message });
+        },
+      );
+    } catch {
+      setInspection({
+        ...pending,
+        error: "Não foi possível iniciar a inspeção em segundo plano.",
+      });
+    }
+  };
+
+  const closeInspection = () => {
+    stopWorker();
+    setInspection(null);
+  };
+  const field = (key: Field) => (
+    <label className="field">
+      <span>{fields[key]}</span>
+      <input
+        aria-label={`Busca · ${fields[key]}`}
+        inputMode={key === "maxIterations" ? "numeric" : "decimal"}
+        value={values[key]}
+        disabled={dirty || running}
+        onChange={(e) => {
+          setValues((before) => ({ ...before, [key]: e.target.value }));
+          reset();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.preventDefault();
+        }}
+      />
+    </label>
+  );
+  return (
+    <details className="circular-search-panel">
+      <summary>Executar busca circular</summary>
+      <section aria-label="Busca circular">
+        {dirty ? (
+          <p>Aplique ou descarte o rascunho para executar a busca.</p>
+        ) : (
+          <>
+            <p className="hint">
+              A busca usa os limites, os passos e os métodos do caso aplicado.
+              Até {MAX_SEARCH_CANDIDATES.toLocaleString("pt-BR")} círculos por
+              execução.
+            </p>
+            {field("toleranceM")}
+            {field("maxArcDegrees")}
+            {grid?.status === "ready" && (
+              <p aria-label="Tamanho da malha">
+                <strong>{grid.grid.total} círculos</strong> ·{" "}
+                {grid.grid.axes.x.values.length} centros X ×{" "}
+                {grid.grid.axes.z.values.length} centros Z ×{" "}
+                {grid.grid.axes.radius.values.length} raios.
+              </p>
+            )}
+            {grid?.status === "blocked" && (
+              <p className="form-error" role="alert">
+                {grid.message}
+              </p>
+            )}
+            <fieldset className="case-fields">
+              <legend>Parâmetros da busca</legend>
+              {field("drivingThresholdKNPerM")}
+              {field("tensionToleranceKPa")}
+              {field("nearTieTolerance")}
+              <p className="hint">
+                Informe valores não negativos. A faixa de quase empate sinaliza
+                diferenças acima do menor FS, sem alterar a ordem.
+              </p>
+            </fieldset>
+            {hasBishop && (
+              <fieldset className="case-fields">
+                <legend>Convergência de Bishop</legend>
+                {field("initialFactor")}
+                {field("residualTolerance")}
+                {field("maxIterations")}
+                {field("singularityThreshold")}
+                <p className="hint">
+                  F₀ e τF positivos. K inteiro de 1 a {MAX_BISHOP_ITERATIONS}.
+                  τm não negativo.
+                </p>
+              </fieldset>
+            )}
+            <div className="search-actions">
+              <button
+                className="secondary"
+                type="button"
+                onClick={start}
+                disabled={running || grid?.status !== "ready"}
+              >
+                Iniciar busca circular
+              </button>
+              {running && (
+                <button
+                  className="secondary"
+                  type="button"
+                  onClick={() => {
+                    stopWorker();
+                    setRun({ status: "cancelled", progress: run.progress });
+                  }}
+                >
+                  Cancelar busca
+                </button>
+              )}
+            </div>
+            {running && (
+              <div className="search-progress">
+                <progress
+                  aria-label="Progresso da busca circular"
+                  max={run.progress.total}
+                  value={run.progress.completed}
+                />
+                <p>
+                  {run.progress.completed} de {run.progress.total} círculos
+                  avaliados.
+                </p>
+              </div>
+            )}
+            {run.status === "cancelled" && (
+              <p role="status">
+                Busca cancelada. {run.progress.completed} de{" "}
+                {run.progress.total} círculos avaliados. Resultado parcial
+                descartado.
+              </p>
+            )}
+            {run.status === "failed" && (
+              <p className="form-error" role="alert">
+                {run.message}
+              </p>
+            )}
+            {completed && (
+              <CircularSearchResults
+                result={completed}
+                onInspect={inspect}
+                onList={() => setInspection({ kind: "list" })}
+              />
+            )}
+            {visibleNumber !== null && (
+              <div className="search-actions">
+                <span>Círculo {visibleNumber} no desenho.</span>
+                <button
+                  className="text-button"
+                  type="button"
+                  onClick={() => {
+                    setVisibleNumber(null);
+                    onPreview(null);
+                  }}
+                >
+                  Ocultar fatias
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+      {completed && inspection && (
+        <Dialog
+          title={
+            inspection.kind === "list"
+              ? "Círculos avaliados na busca"
+              : `Inspeção do círculo ${inspection.location.number}`
+          }
+          description={
+            inspection.kind === "list"
+              ? "Malha, resultados por método e motivos registrados durante a busca."
+              : "Dados e cálculos reproduzidos para o círculo selecionado."
+          }
+          onClose={closeInspection}
+          wide
+        >
+          {inspection.kind === "list" ? (
+            <CircularSearchTable
+              result={completed}
+              onInspect={(candidate) => inspect(candidate.location, null)}
+            />
+          ) : (
+            <>
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => {
+                  stopWorker();
+                  setInspection({ kind: "list" });
+                }}
+              >
+                Voltar aos círculos avaliados
+              </button>
+              {inspection.detail ? (
+                <SearchCircleInspection
+                  key={inspection.location.number}
+                  preparation={preparation}
+                  profile={completed.profile}
+                  detail={inspection.detail}
+                  initialMethod={inspection.method}
+                  onShow={(geometry) => {
+                    onPreview({
+                      inputRevision: completed.inputRevision!,
+                      geometry,
+                    });
+                    setVisibleNumber(inspection.location.number);
+                    closeInspection();
+                  }}
+                />
+              ) : inspection.error ? (
+                <p role="alert">{inspection.error}</p>
+              ) : (
+                <p role="status">Preparando a inspeção…</p>
+              )}
+            </>
+          )}
+        </Dialog>
+      )}
+    </details>
+  );
+}

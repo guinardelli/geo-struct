@@ -1106,7 +1106,8 @@ select {
   font-size: 10px;
 }
 .core-input-preview,
-.fixed-circle-preview {
+.fixed-circle-preview,
+.circular-search-panel {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 10px;
@@ -1114,18 +1115,23 @@ select {
   overflow-wrap: anywhere;
 }
 .core-input-preview summary,
-.fixed-circle-preview summary {
+.fixed-circle-preview summary,
+.circular-search-panel > summary {
+  cursor: pointer;
   color: var(--text);
   font-size: 12px;
 }
 .core-input-preview ul,
-.fixed-circle-preview ul {
+.fixed-circle-preview ul,
+.circular-search-panel ul {
   padding-left: 18px;
 }
-.fixed-circle-preview {
+.fixed-circle-preview,
+.circular-search-panel {
   margin-top: 12px;
 }
-.fixed-circle-preview > section {
+.fixed-circle-preview > section,
+.circular-search-panel > section {
   margin-top: 12px;
 }
 .fixed-circle-preview .secondary {
@@ -1606,5 +1612,25 @@ kbd {
 }
 .method-comparison dd {
   margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.search-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+.search-progress progress {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.search-results .info-card,
+.search-refinement {
+  margin: 12px 0;
+}
+.search-refinement summary {
+  cursor: pointer;
   font-weight: 600;
 }

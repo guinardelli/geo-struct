@@ -20,6 +20,15 @@ import {
 
 export const MAX_PREVIEW_SLICES = 2000;
 export type GeometryProfile = { toleranceM: number; maxArcDegrees: number };
+export function isGeometryProfileValid(profile: GeometryProfile): boolean {
+  return (
+    Number.isFinite(profile.toleranceM) &&
+    profile.toleranceM > 0 &&
+    Number.isFinite(profile.maxArcDegrees) &&
+    profile.maxArcDegrees > 0 &&
+    profile.maxArcDegrees <= 3
+  );
+}
 export type CutReason = {
   kind:
     | "terrain-intersection"
@@ -87,13 +96,7 @@ export function prepareFixedCircleGeometry(
   };
   try {
     const eps = profile.toleranceM;
-    if (
-      !Number.isFinite(eps) ||
-      eps <= 0 ||
-      !Number.isFinite(profile.maxArcDegrees) ||
-      profile.maxArcDegrees <= 0 ||
-      profile.maxArcDegrees > 3
-    )
+    if (!isGeometryProfileValid(profile))
       fail(
         "invalid-profile",
         "Informe tolerância geométrica positiva e abertura angular maior que zero e de até 3°.",

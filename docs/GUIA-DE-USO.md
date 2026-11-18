@@ -69,13 +69,13 @@ Durante o desenho ou comandos de dois pontos, abra **Entrada precisa** no canto 
 
 ## Casos de análise
 
-Em **Análise → Novo caso**, cadastre um cenário da seção ativa. O caso começa com escolhas pendentes. Informe nome, hipóteses, direção e os métodos pretendidos. Direita/esquerda é sempre relativa ao eixo X do desenho; escolher movimento para a esquerda não espelha seus dados. Fellenius e Bishop estão disponíveis para círculo fixo; a busca permanece pendente.
+Em **Análise → Novo caso**, cadastre um cenário da seção ativa. O caso começa com escolhas pendentes. Informe nome, hipóteses, direção e os métodos pretendidos. Direita/esquerda é sempre relativa ao eixo X do desenho; escolher movimento para a esquerda não espelha seus dados. Fellenius e Bishop estão disponíveis para círculo fixo e busca circular.
 
 Em **Água no caso**, escolha usar a condição atual da seção ou adotar condição seca/usar a linha cadastrada. As hipóteses próprias exigem origem; a opção piezométrica usa os pontos e γw da seção, mesmo se a linha estiver guardada nela. Em **Sobrecargas no caso**, escolha a condição atual da seção, ausência de cargas ou faixas selecionadas. A seleção explícita pode ativar faixas desabilitadas na seção; mantenha isso como escolha consciente. Dados das faixas (q, posição e origem), geometria e materiais permanecem compartilhados.
 
 Em **Definição da superfície**, escolha círculo fixo ou busca circular. Para o círculo, informe centro X/Z e raio, use **Desenhar círculo do caso** (dois pontos, também por Entrada precisa), ou **Copiar círculo de tentativa**. A cópia entra no rascunho e exige **Aplicar caso**; o desenho confirmado entra no histórico diretamente. O círculo de tentativa da seção não é alterado. Escape cancela o traçado.
 
-Para busca, informe mínimos, máximos e passos dos centros X/Z e raios. Não há valores sugeridos nem geração de candidatos. Um eixo com mínimo igual ao máximo é fixo e pode ficar sem passo. Limites invertidos e passos não positivos são recusados; vazios ficam pendentes. Alternar o modo preserva o círculo e os limites guardados.
+Para busca, informe mínimos, máximos e passos dos centros X/Z e raios. Um eixo com mínimo igual ao máximo é fixo e pode ficar sem passo. Aplique o caso para conferir a malha no painel de busca. Limites invertidos e passos não positivos são recusados; vazios ficam pendentes. Alternar o modo preserva o círculo e os limites guardados.
 
 Selecione o caso na árvore para ver sua prévia: condições de água/cargas, círculo fixo ou região de centros. A prévia não comprova a admissibilidade da superfície. Use **Enquadrar** para incluir os limites na vista. A edição da geometria base retorna pela árvore ou **Voltar à seção base**. Propriedades só mudam com **Aplicar caso**; a navegação protege rascunhos.
 
@@ -109,7 +109,7 @@ Após **Preparar fatias**, localize **Fellenius · círculo fixo** nas proprieda
 
 O resultado apresenta FS do círculo ou o motivo de rejeição. Resistência nula nas bases aparece como FS = 0 destacado. Em **Inspecionar Fellenius**, consulte perfil, círculo/sentido, normal aproximada, tensão, parcelas de coesão/atrito e momentos de pesos/cargas. Valores negativos permanecem registrados. Alterar entradas, perfil, histórico, arquivo ou caso exige novo cálculo. Refinar a abertura angular permite comparar a sensibilidade.
 
-Neste recorte, face vertical no intervalo da massa, modos resistentes mistos e água externa bloqueiam o método. A busca crítica não é executada. Os resultados e limiares pertencem à sessão; salvar conserva somente as entradas do projeto v4. Veja [regras e referências](FELLENIUS-CIRCULO-FIXO.md).
+Neste recorte, face vertical no intervalo da massa, modos resistentes mistos e água externa bloqueiam o método. Os resultados e limiares pertencem à sessão; salvar conserva somente as entradas do projeto v4. Veja [regras e referências](FELLENIUS-CIRCULO-FIXO.md).
 
 ## Bishop Simplificado e comparação
 
@@ -118,6 +118,16 @@ Selecione Bishop Simplificado no caso, aplique e prepare as fatias. No painel **
 **Inspecionar Bishop** mostra F avaliado, atualização G(F), resíduo, trajetória e parcelas por fatia. Sem convergência, com singularidade ou tração além do limite, o painel conserva o diagnóstico e não fornece FS válido. As tentativas da tabela não são resultados aprovados. Resistência física nula recebe diagnóstico próprio, sem iterar F = 0. Consulte [equações e limites](BISHOP-CIRCULO-FIXO.md).
 
 Selecionando os dois métodos, calcule cada um nas mesmas fatias. **Comparar métodos** mostra os estados; ΔFS aparece quando ambos têm resultados positivos admissíveis e τD/τt coincidem. Alterar um perfil remove seu resultado e a diferença. Preparar outra discretização, editar dados ou trocar arquivo/caso exige novos cálculos. Compare também o refinamento angular antes de interpretar o valor.
+
+## Buscar círculos na seção
+
+1. Selecione **Busca circular** no caso, defina direção e métodos e aplique os limites de centro X/Z e raio. Use um eixo fixo quando quiser variar somente os outros.
+2. Abra **Executar busca circular**. Informe tolerância geométrica, abertura máxima, τD, τt e a faixa de quase empate. Para Bishop, preencha também F₀, τF, K e τm. O painel mostra a contagem da malha e o limite de 10.000 círculos.
+3. Use **Iniciar busca circular** e acompanhe a contagem de círculos avaliados. **Cancelar busca** encerra a execução e descarta a avaliação parcial.
+4. Confira o menor FS admissível de cada método, os avisos de borda e os motivos de descarte em **Ver círculos avaliados**. A inspeção mostra a geometria, as parcelas por fatia e permite colocar as fatias no desenho.
+5. Use **Conferir refinamento das fatias** na inspeção para testar uma abertura menor no mesmo círculo. Para conferir a resolução da malha, ajuste os passos do caso e execute outra busca com o mesmo perfil.
+
+O resultado corresponde à malha avaliada com o perfil informado. Em seções com mais de uma face, delimite o domínio e confira o arco encontrado no desenho. Os [casos e limites da busca circular](BUSCA-CIRCULAR.md) descrevem a rejeição de candidatos, os empates e a resistência nula.
 
 ## Documentar
 

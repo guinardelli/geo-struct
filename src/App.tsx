@@ -91,6 +91,7 @@ import { Materials, MaterialAssignment } from "./components/Materials";
 import { prepareCoreInput } from "./domain/core-input";
 import type { FixedCirclePreparation } from "./core/fixed-circle";
 import type { GeometryFields } from "./components/FixedCirclePreview";
+import type { SearchOverlay } from "./components/CircularSearchPanel";
 
 type Question = {
   title: string;
@@ -145,6 +146,9 @@ export default function App() {
   });
   const [slicePreview, setSlicePreview] =
     useState<FixedCirclePreparation | null>(null);
+  const [searchOverlay, setSearchOverlay] = useState<SearchOverlay | null>(
+    null,
+  );
   const [notice, setNotice] = useState(""),
     [question, setQuestion] = useState<Question | null>(null),
     [dialog, setDialog] = useState<
@@ -202,6 +206,11 @@ export default function App() {
     preparedCase?.snapshot &&
     slicePreview?.inputRevision === preparedCase.snapshot.revision
       ? slicePreview
+      : null;
+  const searchedGeometry =
+    preparedCase?.snapshot &&
+    searchOverlay?.inputRevision === preparedCase.snapshot.revision
+      ? searchOverlay.geometry
       : null;
   const dirty = !!project && JSON.stringify(project) !== saved;
   const notify = useCallback((message: string) => {
@@ -352,6 +361,7 @@ export default function App() {
     setTab("Geometria");
     setSaved(savedState && !migrated ? JSON.stringify(p) : "");
     setSlicePreview(null);
+    setSearchOverlay(null);
     setFilePath(path);
     setDraftDirty(false);
     setDrawing(false);
@@ -1160,10 +1170,11 @@ export default function App() {
                   selection={selection}
                   analysisCase={selectedCase}
                   sliceGeometry={
-                    !draftDirty &&
-                    !drawing &&
-                    currentSlices?.status === "prepared"
-                      ? currentSlices.geometry
+                    !draftDirty && !drawing
+                      ? (searchedGeometry ??
+                        (currentSlices?.status === "prepared"
+                          ? currentSlices.geometry
+                          : null))
                       : null
                   }
                   tool={tool}
@@ -1266,6 +1277,7 @@ export default function App() {
                   onDirty={setDraftDirty}
                   onDrawCircle={() => void selectTool("case-circle")}
                   onBase={() => void select({ kind: "terrain" })}
+                  onSearchPreview={setSearchOverlay}
                   geometryPreview={{
                     preparation: preparedCase!,
                     values: geometryFields,
@@ -1630,10 +1642,10 @@ export default function App() {
             </p>
           </div>
           <div className="info-card">
-            Esta versão permite calcular Fellenius e Bishop para um círculo fixo
-            nas propriedades do caso, após preparar as fatias. Busca crítica e
-            contenções pertencem às próximas etapas. A conferência geométrica
-            não representa aprovação de estabilidade.
+            Nas propriedades do caso, calcule Fellenius ou Bishop em círculo
+            fixo ou execute a busca circular para encontrar o menor FS
+            admissível na malha. Confira os círculos, os diagnósticos e as
+            fatias do resultado.
           </div>
           <p className="hint">
             GeoStruct 0.1.0 · Ricardo Corsini e colaboradores · OpenStruct

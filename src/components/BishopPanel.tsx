@@ -185,196 +185,198 @@ export function BishopPanel({
           onClose={() => setInspect(false)}
           description="Perfil, trajetória de convergência e parcelas por fatia no F avaliado; formulação USACE F-4/F-6 com ue b."
         >
-          <div className="slice-inspection">
-            <p>
-              {result.source?.origin.analysisCase.name} ·{" "}
-              {result.source?.direction === "left-to-right"
-                ? "esquerda → direita"
-                : "direita → esquerda"}{" "}
-              · centro ({number(result.source!.center.x)};{" "}
-              {number(result.source!.center.z)}) m · R ={" "}
-              {number(result.source!.radiusM)} m.
-            </p>
-            <p aria-label="Perfil de Bishop">
-              F₀ = {number(result.profile.initialFactor)} · τF ={" "}
-              {number(result.profile.residualTolerance)} · K ={" "}
-              {result.profile.maxIterations} · τm ={" "}
-              {number(result.profile.singularityThreshold)} · τD ={" "}
-              {number(result.profile.drivingThresholdKNPerM)} kN/m · τt ={" "}
-              {number(result.profile.tensionToleranceKPa)} kPa · tolerância
-              geométrica = {number(result.geometryProfile!.toleranceM)} m ·
-              abertura máxima = {number(result.geometryProfile!.maxArcDegrees)}
-              °.
-            </p>
-            <div className="info-card" aria-label="Balanço de Bishop">
-              <p>
-                D = ΣW sin α + ΣMq/R ={" "}
-                {number(result.calculation.weightDrivingKNPerM)} +{" "}
-                {number(result.calculation.loadDrivingKNPerM)} ={" "}
-                {number(result.calculation.drivingKNPerM)} kN/m.
-              </p>
-              <p>
-                Limite de representação de D:{" "}
-                {number(result.calculation.drivingRoundoffBoundKNPerM)} kN/m.
-              </p>
-              <p>
-                {result.factorOfSafety === null
-                  ? "FS indisponível: ver diagnósticos."
-                  : `FS = ${number(result.factorOfSafety)}`}
-              </p>
-              {last && (
-                <p>
-                  Última avaliação completa: {last.iteration} · F avaliado ={" "}
-                  {number(last.trialFactor)} · G(F) ={" "}
-                  {number(last.updatedFactor)} · |G(F) − F| ={" "}
-                  {number(last.residual)} · numerador reduzido ={" "}
-                  {number(last.numeratorKNPerM)} kN/m.
-                </p>
-              )}
-            </div>
-            {!!result.diagnostics.length && (
-              <ul aria-label="Diagnósticos na inspeção de Bishop">
-                {result.diagnostics.map((d, i) => (
-                  <li key={i}>
-                    {d.message}
-                    {d.value !== undefined && <> Valor: {number(d.value)}.</>}
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p>
-              mα = cos α + sin α tan φ / F. A = [cb + (W + Q − ue b) tan φ] /
-              mα. O FS mostrado é o F avaliado, cujo resíduo passou pelo limiar.
-            </p>
-            <div className="materials-table-wrap slice-table-wrap">
-              <table
-                className="materials-table"
-                aria-label="Trajetória de Bishop"
-              >
-                <thead>
-                  <tr>
-                    <th>Avaliação</th>
-                    <th>F avaliado</th>
-                    <th>G(F)</th>
-                    <th>Resíduo absoluto</th>
-                    <th>Menor mα verificado</th>
-                    <th>ΣA (kN/m)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.iterations.map((row) => (
-                    <tr key={row.iteration}>
-                      <td>{row.iteration}</td>
-                      <td>{number(row.trialFactor)}</td>
-                      <td>{number(row.updatedFactor)}</td>
-                      <td>{number(row.residual)}</td>
-                      <td>{number(row.minM)}</td>
-                      <td>{number(row.numeratorKNPerM)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {last && (
-              <>
-                <p>
-                  Fatias da avaliação {last.iteration}, em F ={" "}
-                  {number(last.trialFactor)}. Normais são calculadas apenas
-                  quando o resíduo atende a τF; “—” significa não avaliada. N
-                  usado é efetivo nas bases efetivas e total nas totais. A
-                  inspeção também permanece disponível quando a tração rejeita a
-                  solução convergida.
-                </p>
-                <div className="materials-table-wrap slice-table-wrap">
-                  <table
-                    className="materials-table"
-                    aria-label="Parcelas de Bishop por fatia"
-                  >
-                    <thead>
-                      <tr>
-                        <th>Ordem / fatia</th>
-                        <th>Base / modo</th>
-                        <th>mα</th>
-                        <th>W sin α (kN/m)</th>
-                        <th>ΣMq/R (kN/m)</th>
-                        <th>A reduzida (kN/m)</th>
-                        <th>N usado (kN/m)</th>
-                        <th>N total (kN/m)</th>
-                        <th>σr (kPa)</th>
-                        <th>cℓ + N tan φ (kN/m)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {last.slices.map((s) => (
-                        <tr key={s.input.number}>
-                          <td>
-                            {s.input.order} / {s.input.number}
-                          </td>
-                          <td>
-                            {s.input.baseMaterial.name}
-                            <small>
-                              {s.input.baseMaterial.mode === "effective"
-                                ? "Efetivas"
-                                : "Totais"}
-                            </small>
-                          </td>
-                          <td>{number(s.m)}</td>
-                          <td>{number(s.weightDrivingKNPerM)}</td>
-                          <td>{number(s.loadDrivingKNPerM)}</td>
-                          <td>{number(s.reducedResistanceKNPerM)}</td>
-                          <td>{number(s.normalForResistanceKNPerM)}</td>
-                          <td>{number(s.totalNormalKNPerM)}</td>
-                          <td>{number(s.normalStressKPa)}</td>
-                          <td>{number(s.resistanceKNPerM)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <details>
-                  <summary>Momentos próprios das faixas</summary>
-                  <div className="materials-table-wrap slice-table-wrap">
-                    <table
-                      className="materials-table"
-                      aria-label="Momentos das faixas em Bishop"
-                    >
-                      <thead>
-                        <tr>
-                          <th>Fatia</th>
-                          <th>Faixa (ID)</th>
-                          <th>Q (kN/m)</th>
-                          <th>Braço (m)</th>
-                          <th>Mq (kN·m/m)</th>
-                          <th>Mq/R (kN/m)</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {last.slices.flatMap((s) =>
-                          s.input.surcharge.contributions.map((l, i) => (
-                            <tr key={`${s.input.number}-${i}`}>
-                              <td>{s.input.number}</td>
-                              <td>{l.loadId}</td>
-                              <td>{number(l.forceKNPerM)}</td>
-                              <td>{number(l.armDrivingM!)}</td>
-                              <td>{number(l.momentDrivingKNmPerM!)}</td>
-                              <td>{number(s.loadDriving[i].valueKNPerM)}</td>
-                            </tr>
-                          )),
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </details>
-              </>
-            )}
-            <p className="hint">
-              Consulte Inspecionar fatias → Entrada mecânica para a origem dos
-              parâmetros. Tentativa interrompida não constitui FS válido. Este
-              resultado não integra o arquivo ou o relatório de entradas.
-            </p>
-          </div>
+          <BishopInspection result={result} />
         </Dialog>
       )}
     </section>
+  );
+}
+
+export function BishopInspection({ result }: { result: BishopResult }) {
+  if (!result.calculation) return null;
+  const last = result.calculation.evaluation;
+  return (
+    <div className="slice-inspection">
+      <p>
+        {result.source?.origin.analysisCase.name} ·{" "}
+        {result.source?.direction === "left-to-right"
+          ? "esquerda → direita"
+          : "direita → esquerda"}{" "}
+        · centro ({number(result.source!.center.x)};{" "}
+        {number(result.source!.center.z)}) m · R ={" "}
+        {number(result.source!.radiusM)} m.
+      </p>
+      <p aria-label="Perfil de Bishop">
+        F₀ = {number(result.profile.initialFactor)} · τF ={" "}
+        {number(result.profile.residualTolerance)} · K ={" "}
+        {result.profile.maxIterations} · τm ={" "}
+        {number(result.profile.singularityThreshold)} · τD ={" "}
+        {number(result.profile.drivingThresholdKNPerM)} kN/m · τt ={" "}
+        {number(result.profile.tensionToleranceKPa)} kPa · tolerância geométrica
+        = {number(result.geometryProfile!.toleranceM)} m · abertura máxima ={" "}
+        {number(result.geometryProfile!.maxArcDegrees)}
+        °.
+      </p>
+      <div className="info-card" aria-label="Balanço de Bishop">
+        <p>
+          D = ΣW sin α + ΣMq/R ={" "}
+          {number(result.calculation.weightDrivingKNPerM)} +{" "}
+          {number(result.calculation.loadDrivingKNPerM)} ={" "}
+          {number(result.calculation.drivingKNPerM)} kN/m.
+        </p>
+        <p>
+          Limite de representação de D:{" "}
+          {number(result.calculation.drivingRoundoffBoundKNPerM)} kN/m.
+        </p>
+        <p>
+          {result.factorOfSafety === null
+            ? "FS indisponível: ver diagnósticos."
+            : `FS = ${number(result.factorOfSafety)}`}
+        </p>
+        {last && (
+          <p>
+            Última avaliação completa: {last.iteration} · F avaliado ={" "}
+            {number(last.trialFactor)} · G(F) = {number(last.updatedFactor)} ·
+            |G(F) − F| = {number(last.residual)} · numerador reduzido ={" "}
+            {number(last.numeratorKNPerM)} kN/m.
+          </p>
+        )}
+      </div>
+      {!!result.diagnostics.length && (
+        <ul aria-label="Diagnósticos na inspeção de Bishop">
+          {result.diagnostics.map((d, i) => (
+            <li key={i}>
+              {d.message}
+              {d.value !== undefined && <> Valor: {number(d.value)}.</>}
+            </li>
+          ))}
+        </ul>
+      )}
+      <p>
+        mα = cos α + sin α tan φ / F. A = [cb + (W + Q − ue b) tan φ] / mα. O FS
+        mostrado é o F avaliado, cujo resíduo passou pelo limiar.
+      </p>
+      <div className="materials-table-wrap slice-table-wrap">
+        <table className="materials-table" aria-label="Trajetória de Bishop">
+          <thead>
+            <tr>
+              <th>Avaliação</th>
+              <th>F avaliado</th>
+              <th>G(F)</th>
+              <th>Resíduo absoluto</th>
+              <th>Menor mα verificado</th>
+              <th>ΣA (kN/m)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {result.iterations.map((row) => (
+              <tr key={row.iteration}>
+                <td>{row.iteration}</td>
+                <td>{number(row.trialFactor)}</td>
+                <td>{number(row.updatedFactor)}</td>
+                <td>{number(row.residual)}</td>
+                <td>{number(row.minM)}</td>
+                <td>{number(row.numeratorKNPerM)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {last && (
+        <>
+          <p>
+            Fatias da avaliação {last.iteration}, em F ={" "}
+            {number(last.trialFactor)}. Normais são calculadas apenas quando o
+            resíduo atende a τF; “—” significa não avaliada. N usado é efetivo
+            nas bases efetivas e total nas totais. A inspeção também permanece
+            disponível quando a tração rejeita a solução convergida.
+          </p>
+          <div className="materials-table-wrap slice-table-wrap">
+            <table
+              className="materials-table"
+              aria-label="Parcelas de Bishop por fatia"
+            >
+              <thead>
+                <tr>
+                  <th>Ordem / fatia</th>
+                  <th>Base / modo</th>
+                  <th>mα</th>
+                  <th>W sin α (kN/m)</th>
+                  <th>ΣMq/R (kN/m)</th>
+                  <th>A reduzida (kN/m)</th>
+                  <th>N usado (kN/m)</th>
+                  <th>N total (kN/m)</th>
+                  <th>σr (kPa)</th>
+                  <th>cℓ + N tan φ (kN/m)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {last.slices.map((s) => (
+                  <tr key={s.input.number}>
+                    <td>
+                      {s.input.order} / {s.input.number}
+                    </td>
+                    <td>
+                      {s.input.baseMaterial.name}
+                      <small>
+                        {s.input.baseMaterial.mode === "effective"
+                          ? "Efetivas"
+                          : "Totais"}
+                      </small>
+                    </td>
+                    <td>{number(s.m)}</td>
+                    <td>{number(s.weightDrivingKNPerM)}</td>
+                    <td>{number(s.loadDrivingKNPerM)}</td>
+                    <td>{number(s.reducedResistanceKNPerM)}</td>
+                    <td>{number(s.normalForResistanceKNPerM)}</td>
+                    <td>{number(s.totalNormalKNPerM)}</td>
+                    <td>{number(s.normalStressKPa)}</td>
+                    <td>{number(s.resistanceKNPerM)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <details>
+            <summary>Momentos próprios das faixas</summary>
+            <div className="materials-table-wrap slice-table-wrap">
+              <table
+                className="materials-table"
+                aria-label="Momentos das faixas em Bishop"
+              >
+                <thead>
+                  <tr>
+                    <th>Fatia</th>
+                    <th>Faixa (ID)</th>
+                    <th>Q (kN/m)</th>
+                    <th>Braço (m)</th>
+                    <th>Mq (kN·m/m)</th>
+                    <th>Mq/R (kN/m)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {last.slices.flatMap((s) =>
+                    s.input.surcharge.contributions.map((l, i) => (
+                      <tr key={`${s.input.number}-${i}`}>
+                        <td>{s.input.number}</td>
+                        <td>{l.loadId}</td>
+                        <td>{number(l.forceKNPerM)}</td>
+                        <td>{number(l.armDrivingM!)}</td>
+                        <td>{number(l.momentDrivingKNmPerM!)}</td>
+                        <td>{number(s.loadDriving[i].valueKNPerM)}</td>
+                      </tr>
+                    )),
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </>
+      )}
+      <p className="hint">
+        Consulte a entrada mecânica para conferir a origem dos parâmetros. O FS
+        é exibido quando a convergência e a admissibilidade são confirmadas.
+      </p>
+    </div>
   );
 }

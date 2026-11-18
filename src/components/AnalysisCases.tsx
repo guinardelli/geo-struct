@@ -20,6 +20,7 @@ import {
   FixedCirclePreview,
   type FixedCirclePreviewProps,
 } from "./FixedCirclePreview";
+import { CircularSearchPanel, type SearchOverlay } from "./CircularSearchPanel";
 
 export function AnalysisCases({
   project,
@@ -181,6 +182,7 @@ export function CaseInspector({
   onDrawCircle,
   onBase,
   geometryPreview,
+  onSearchPreview,
 }: {
   project: Project;
   section: Section;
@@ -190,6 +192,7 @@ export function CaseInspector({
   onDrawCircle: () => void;
   onBase: () => void;
   geometryPreview: Omit<FixedCirclePreviewProps, "dirty">;
+  onSearchPreview: (overlay: SearchOverlay | null) => void;
 }) {
   const initial: Record<string, string> = {
     name: c.name,
@@ -473,18 +476,24 @@ export function CaseInspector({
             ))}
             <p className="hint">
               Mínimo e máximo iguais fixam o eixo; o passo pode ficar vazio
-              nesse eixo. Nenhuma malha é gerada nesta etapa.
+              nesse eixo. Aplique o caso para conferir a malha e iniciar a
+              busca.
             </p>
           </fieldset>
-          <div className="info-card">
-            Entradas aplicadas para preparar fatias, peso próprio e pressões.
-            Não há fator de segurança ou resultado de busca.
-          </div>
           <CoreInputPreview
             prepared={geometryPreview.preparation}
             dirty={dirty}
           />
-          <FixedCirclePreview {...geometryPreview} dirty={dirty} />
+          {c.surfaceMode === "search" ? (
+            <CircularSearchPanel
+              key={geometryPreview.preparation.snapshot?.revision}
+              preparation={geometryPreview.preparation}
+              dirty={dirty}
+              onPreview={onSearchPreview}
+            />
+          ) : (
+            <FixedCirclePreview {...geometryPreview} dirty={dirty} />
+          )}
           <button className="text-button" type="button" onClick={onBase}>
             Voltar à seção base
           </button>

@@ -1,6 +1,12 @@
 # Histórico
 
-## Em desenvolvimento — Bishop Simplificado em círculo fixo
+## Em desenvolvimento — Busca circular determinística
+
+- Malha de centros X/Z e raios na ordem dos índices, com contagem prévia e capacidade de até 10.000 círculos.
+- Busca em segundo plano com progresso e cancelamento. Menor FS admissível por método, bordas, empates, resistência nula e motivos de descarte.
+- Inspeção de candidatos, desenho das fatias e conferência com abertura angular menor. Perfil e resultados vinculados ao caso aplicado durante a sessão.
+
+## Etapa anterior — Bishop Simplificado em círculo fixo
 
 - Iteração com F₀, τF, K, τm, τD e τt explícitos; histórico e resíduo no F avaliado. Sem amortecimento ou substituição silenciosa do perfil.
 - Inspeção de parcelas, normais, momentos próprios das faixas e diagnósticos de singularidade, falta de convergência, tração e resistência nula. Tentativas rejeitadas não fornecem FS.

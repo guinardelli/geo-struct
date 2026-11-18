@@ -8,6 +8,13 @@ export type EquilibriumProfile = {
   drivingThresholdKNPerM: number;
   tensionToleranceKPa: number;
 };
+export function isEquilibriumProfileValid(
+  profile: EquilibriumProfile,
+): boolean {
+  return [profile.drivingThresholdKNPerM, profile.tensionToleranceKPa].every(
+    (n) => Number.isFinite(n) && n >= 0,
+  );
+}
 export type EquilibriumDiagnostic = {
   code: string;
   level: "error" | "warning";
@@ -101,11 +108,7 @@ export function validateEquilibrium(
   method: "fellenius" | "bishop",
 ) {
   const name = method === "fellenius" ? "Fellenius" : "Bishop Simplificado";
-  if (
-    ![profile.drivingThresholdKNPerM, profile.tensionToleranceKPa].every(
-      (n) => Number.isFinite(n) && n >= 0,
-    )
-  )
+  if (!isEquilibriumProfileValid(profile))
     fail(
       "invalid-profile",
       "Informe limiar motriz e tolerância de tração finitos e não negativos, nas unidades indicadas.",

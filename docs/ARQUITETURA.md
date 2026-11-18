@@ -72,7 +72,11 @@ O App mantém apenas uma prévia em memória e a apresenta quando sua revisão c
 
 `FixedCircleMethods` reúne `FelleniusPanel` e `BishopPanel`. Resultados só aparecem para a mesma instância de entrada mecânica; cada edição de perfil retira o resultado e a diferença entre métodos. A comparação exige dois resultados positivos admissíveis e igualdade de τD/τt. Uma falha não impede executar o outro método. A inspeção diferencia tentativas completas da trajetória interrompida, sem apresentar a última tentativa como solução.
 
-O arquivo permanece v4; snapshots, perfis, preparações e resultados não são persistidos nem incluídos no relatório de entradas. Próximo passo: busca circular determinística, após consolidar perfil, classificação dos candidatos e regras de refinamento. Modos mistos, faces verticais e água externa permanecem fora do método inicial; a implementação não encerra a revisão integral da #30/#31. A busca futura deverá executar em Worker com progresso e cancelamento. Não há regra de FS mínimo ou sinalização de aprovação de estabilidade.
+`src/core/search-grid.ts` prepara as coordenadas de cada eixo e verifica o tamanho da malha antes de enumerar círculos. `src/core/circular-search.ts` deriva uma entrada de círculo fixo para cada candidato, mantendo a origem do caso. Compartilha geometria e entrada mecânica entre os métodos. O resultado da busca conserva a revisão do caso, o perfil, a ordem da malha, os resultados por método e contagens por motivo.
+
+`CircularSearchPanel` inicia um Worker por execução. Recebe o progresso em contagens de candidatos e termina o Worker ao cancelar, editar o caso ou sair da seleção. Guarda dados compactos dos círculos concluídos. A inspeção reproduz apenas o círculo solicitado com a entrada e o perfil originais. O recálculo com abertura menor também ocorre em Worker. O desenho usa a geometria do círculo inspecionado, vinculada à revisão ativa.
+
+O arquivo permanece v4. Os perfis, resultados e prévias pertencem à sessão. Modos mistos, faces verticais no arco analisado e água externa continuam condicionando a admissibilidade dos métodos. Consulte [Busca circular](BUSCA-CIRCULAR.md) para as regras locais e a distinção entre teste de software e aceite de engenharia.
 
 ## Conferência integrada dos lançamentos
 

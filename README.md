@@ -1,7 +1,7 @@
 <h1 align="center">GeoStruct</h1>
 <p align="center">Modelagem geotécnica 2D para taludes e contenções.<br/>Um aplicativo livre do <strong>OpenStruct</strong>.</p>
 
-**GeoStruct — modelagem e evolução do núcleo 2D.** Crie seções, atribua materiais, represente água e sobrecargas e salve projetos locais. A branch de desenvolvimento calcula Fellenius e Bishop Simplificado para um círculo fixo, com inspeção por fatia, convergência e diagnósticos. A distribuição 0.1.0 disponível no Launcher permanece de modelagem. Busca crítica e dimensionamento de contenções ainda não estão disponíveis; não há aprovação normativa de estabilidade.
+**GeoStruct — modelagem e evolução do núcleo 2D.** Crie seções, atribua materiais, represente água e sobrecargas e salve projetos locais. A branch de desenvolvimento calcula Fellenius e Bishop Simplificado em círculo fixo e executa uma busca circular em malha de centros e raios. Os resultados incluem inspeção por fatia, diagnósticos e o menor FS admissível por método na malha avaliada. A distribuição 0.1.0 disponível no Launcher é de modelagem.
 
 ## Começar
 
@@ -69,7 +69,7 @@ Testes de domínio verificam geometrias, limites dos parâmetros, arquivos, refe
 | Caminho           | Responsabilidade                                             |
 | ----------------- | ------------------------------------------------------------ |
 | `src/domain/`     | Modelo, validação geométrica e histórico, sem React ou Tauri |
-| `src/core/`       | Preparações das fatias, Fellenius e Bishop                   |
+| `src/core/`       | Preparações das fatias, Fellenius, Bishop e busca circular   |
 | `src/components/` | Ribbon, navegador, editor gráfico, propriedades e relatório  |
 | `src/lib/`        | Entrada e saída local, com adaptadores web e desktop         |
 | `src-tauri/`      | Janela nativa, permissões, identidade e empacotamento        |
@@ -83,7 +83,7 @@ O [contrato de materiais e migração](docs/MATERIAIS-E-FORMATO.md) descreve os 
 
 O [contrato de água e cargas](docs/AGUA-E-CARGAS.md) descreve as condições, os lançamentos ativos/inativos e a migração para v3. Desativar preserva os dados; água ou cargas ausentes em um arquivo antigo ficam como não definidas.
 
-O [contrato de casos de análise](docs/CASOS-DE-ANALISE.md) descreve a associação à seção, as condições próprias dos cenários e o formato v4. Fellenius e Bishop podem ser executados em círculo fixo; a busca permanece pendente.
+O [contrato de casos de análise](docs/CASOS-DE-ANALISE.md) descreve a associação à seção, as condições próprias dos cenários e o formato v4. Os dois métodos podem ser executados em círculo fixo ou na busca circular.
 
 Na versão em desenvolvimento, selecione um caso e abra **Entradas para o núcleo**, nas propriedades, para conferir os dados aplicados e suas pendências. O [contrato de entradas](docs/ENTRADAS-DO-NUCLEO.md) reúne condições efetivas, materiais usados, unidades e origem em uma cópia imutável, com revisão que detecta alterações posteriores.
 
@@ -102,6 +102,8 @@ Em **Entrada mecânica**, confira as fatias ordenadas no movimento, α da base, 
 Em **Fellenius · círculo fixo**, informe o limiar motriz (kN/m) e a tolerância de tração (kPa), então use **Calcular Fellenius**. Consulte **Inspecionar Fellenius** para normal aproximada, parcelas resistentes, momentos e diagnósticos. O FS pertence ao círculo informado; não representa o mínimo de uma busca. Faces verticais na massa, bases com modos mistos e água externa ficam fora deste recorte. Veja [regras, equações e casos independentes](docs/FELLENIUS-CIRCULO-FIXO.md).
 
 Em **Bishop Simplificado · círculo fixo**, informe F₀, tolerância do resíduo τF, máximo de avaliações K e limiares τm, τD e τt, então use **Calcular Bishop**. **Inspecionar Bishop** mostra cada tentativa, o resíduo no F avaliado, normais e parcelas por fatia. Singularidade, falta de convergência e tração além do limiar impedem apresentar um FS válido. Selecionando os dois métodos, a comparação mostra a diferença somente com resultados positivos admissíveis, nas mesmas fatias e com τD/τt iguais. Veja [regras, equações e casos independentes de Bishop](docs/BISHOP-CIRCULO-FIXO.md). Os parâmetros e resultados permanecem apenas na sessão.
+
+Para a **Busca circular**, aplique os limites e passos de centros X/Z e raios no caso. Abra **Executar busca circular**, preencha o perfil e confira a contagem de círculos. A execução em segundo plano permite cancelar. Os resultados mostram o menor FS positivo admissível por método, bordas, empates e descartes. **Ver círculos avaliados** reúne os diagnósticos e a inspeção permite desenhar as fatias e conferir o refinamento do círculo escolhido. Consulte as [regras e os casos de verificação da busca](docs/BUSCA-CIRCULAR.md).
 
 ## Origem e referências
 

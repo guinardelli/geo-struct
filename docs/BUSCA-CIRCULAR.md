@@ -1,0 +1,36 @@
+# Busca circular determinística
+
+A busca implementa D5 da [decisão de engenharia aprovada](https://github.com/ricardocorsini/openstruct-front/issues/30#issuecomment-6850038580). Usa os métodos e as hipóteses do caso aplicado. O §4-2e do [USACE EM 1110-2-1902](https://damtoolbox.org/images/8/83/Slope_Stability_Document.pdf), pp. 4-2 a 4-7, orienta a exploração de centros e raios e a conferência de superfícies e mínimos locais. A malha específica do GeoStruct segue §5 da [especificação candidata](https://github.com/ricardocorsini/openstruct-front/issues/30#issuecomment-6863167450). As regras locais de R3, R5 e R6 abaixo são decisões deste recorte. O aceite integral CA8 e o catálogo da #31 continuam ligados à [revisão técnica](https://github.com/ricardocorsini/openstruct-front/pull/37).
+
+## Malha e perfil
+
+| Item                  | Regra                                                                                                                                                                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Limites e passo       | Cada eixo usa o valor `mínimo + índice × passo` com índice inteiro a partir de zero. Os centros usam X/Z do desenho, independentemente do sentido de movimento.                                                        |
+| Extremo superior      | Se um ponto de índice positivo estiver a até ε do máximo, é ajustado para esse máximo. Caso contrário, termina no último ponto dentro do intervalo. O mínimo sempre é amostrado e um eixo fixo fornece um único valor. |
+| Tolerância            | ε deve ser finito, positivo e estritamente menor que metade do passo em eixos variáveis. Quando a aritmética produz pontos indistinguíveis, a malha é recusada com indicação do eixo.                                  |
+| Ordem                 | X, Z, raio em ordem crescente de índice. O raio varia primeiro. O número do círculo identifica sua posição nessa ordem, inclusive entre os descartados.                                                                |
+| Capacidade            | Até 10.000 círculos por execução. O produto das contagens é verificado antes de avaliar candidatos. Uma malha excedente é recusada por inteiro. Este é um limite operacional.                                          |
+| Discretização         | Geometria pela corda e área até o arco, com abertura máxima maior que zero e de até 3°. Cortes obrigatórios e limites das preparações são os mesmos do círculo fixo.                                                   |
+| Parâmetros de cálculo | τD em kN/m e τt em kPa são explícitos e comuns aos métodos. Se Bishop for selecionado, informe também F₀, τF, K e τm. Consulte [Fellenius](FELLENIUS-CIRCULO-FIXO.md) e [Bishop](BISHOP-CIRCULO-FIXO.md).              |
+| Faixa de quase empate | Diferença absoluta adimensional de FS, finita e não negativa. Com zero são registrados apenas empates exatos.                                                                                                          |
+
+Para cada círculo, a entrada deriva do mesmo caso e recebe uma revisão específica da superfície. Os dois métodos usam as mesmas preparações de geometria, pesos, água, cargas e entrada mecânica. A validade de um método é independente da do outro. Os diagnósticos conservam a etapa de origem. Uma falha de água durante a geometria aparece como descarte geométrico. Se a geometria está disponível e a pressão falha, o círculo conta para a cobertura parcial dos métodos selecionados.
+
+## Classificação e inspeção
+
+- O menor FS resulta dos valores positivos admissíveis, comparados antes do arredondamento de exibição. Entre valores idênticos, conserva-se o primeiro círculo da ordem da malha. Quase empate indica diferença positiva de até a faixa informada e mantém a ordem dos valores.
+- O primeiro e o último ponto efetivamente amostrados são as bordas dos eixos variáveis. O painel informa em quais eixos o mínimo está na borda. No eixo de intervalo nulo, o valor é fixo por definição.
+- A resistência física nula fica destacada enquanto R5 segue em revisão. Fellenius conserva FS = 0 quando esse resultado é admissível. Bishop registra o estado sem FS numérico. Esses círculos ficam fora da classificação de FS positivos.
+- A busca distingue ausência de geometria preparada de ausência de FS positivo admissível. Contagens por etapa indicam quantos círculos apresentaram cada código. Avisos de cobertura parcial registram falhas em círculos cuja geometria foi preparada. Um círculo pode ter mais de um motivo.
+- O menor valor depende do domínio, do passo, da discretização, do método e da admissibilidade. Examine o arco e as alternativas antes de escolher limites em seções com mais de uma face. Use passos menores em uma nova busca para conferir a sensibilidade à malha.
+
+O Worker envia contagens de progresso e termina ao cancelar ou mudar o contexto. Candidatos de uma execução interrompida são descartados. Os resultados completos são compactos e vinculados à entrada aplicada e ao perfil. A inspeção repete o cálculo do círculo escolhido para exibir as parcelas e permite desenhar suas fatias. **Conferir refinamento das fatias** recalcula esse círculo com uma abertura explícita menor, mantendo as outras entradas e a classificação original. O projeto salva os limites e passos no formato v4. O perfil numérico e os resultados ficam na sessão.
+
+## Verificação independente do recorte
+
+1. Para x de −1 a 1 com passo 2, z fixo em 4 e raios 0,1 a 0,3 com passo 0,1, são seis círculos. O raio 0,3 aparece uma vez por centro. Para raios 3 a 6,05 com passo 1, a malha contém 3, 4, 5 e 6. A margem residual de 0,05 m não gera outro ponto com ε de 10⁻⁸ m.
+2. Em uma classificação com Fellenius 1,20, 1,19, 1,19 e 1,190000004, o segundo círculo é o primeiro mínimo. O terceiro tem empate exato e o quarto entra na faixa de 10⁻⁶ sem alterar o mínimo. A mesma sequência de círculos pode produzir outro mínimo em Bishop. Casos com trações, não convergência e resistência física nula conservam seus próprios estados.
+3. No talude plano seco de teste, com centro (0, 4) m e raios 3, 4, 5 e 6 m, a distância do centro à reta do terreno é 4/√1,25 m. O círculo de raio 3 m não cruza a reta. Os outros três são avaliados e seus valores coincidem com as execuções isoladas em círculo fixo. O caso com linha piezométrica parcial comprova o descarte no raio maior. Quando a linha cobre a malha, mas está acima do terreno apenas no intervalo desse círculo, o bloqueio passa à preparação de pressões e aparece como cobertura parcial.
+
+As verificações cobrem enumeração, classificação e equivalência de implementação nas superfícies do caso de teste. Permanece a revisão independente da aplicabilidade em casos geotécnicos de referência.

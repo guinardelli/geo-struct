@@ -86,8 +86,8 @@ export function CoreInputPreview({
           </ul>
         )}
         <p className="hint">
-          Esta conferência reúne entradas. O cálculo por Fellenius ou Bishop é
-          executado separadamente, após preparar as fatias do círculo fixo.
+          Use a geometria do círculo fixo ou o painel de busca circular para
+          calcular os métodos do caso.
         </p>
       </section>
     </details>
