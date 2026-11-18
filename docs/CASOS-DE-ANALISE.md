@@ -1,24 +1,24 @@
 # Casos de análise e formato v4
 
-Um caso prepara as entradas de uma análise na geometria de uma seção. Cada caso tem ID próprio; geometria, materiais, linha piezométrica e dados das faixas continuam no cadastro da seção. Mudar esses dados afeta os casos vinculados. A versão em desenvolvimento permite preparar a [geometria das fatias de um círculo fixo](GEOMETRIA-DO-CIRCULO.md), sem gravá-la no arquivo. Não há resultados de estabilidade, enumeração de candidatos ou cálculo de FS.
+Um caso prepara as entradas de uma análise na geometria de uma seção. Cada caso tem ID próprio; geometria, materiais, linha piezométrica e dados das faixas continuam no cadastro da seção. Mudar esses dados afeta os casos vinculados. A versão em desenvolvimento permite preparar a [geometria das fatias de um círculo fixo](GEOMETRIA-DO-CIRCULO.md), sem gravá-la no arquivo. Fellenius pode avaliar o círculo fixo na sessão, sem persistir resultados. Bishop e enumeração de candidatos permanecem pendentes.
 
 ## Contrato
 
 `project.analysisCases` admite de zero a 100 casos. IDs são únicos em todo o projeto. Um projeto novo ou migrado não recebe casos automaticamente.
 
-| Campo                     | Conteúdo e regra                                                                                                 |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `id`, `name`, `sectionId` | ID único, nome não vazio até 120 caracteres e referência obrigatória a uma seção existente                       |
-| `description`             | Hipóteses do cenário, até 2.000 caracteres; branco é pendência                                                   |
-| `direction`               | `left-to-right` (+X), `right-to-left` (−X) ou nulo; não inferida pela inclinação do terreno                      |
-| `methods`                 | Lista sem duplicatas de `bishop` e/ou `fellenius`; vazia é pendência. Métodos pretendidos, ainda não executáveis |
-| `surfaceMode`             | `fixed`, `search` ou nulo                                                                                        |
-| `fixedCircle`             | Centro `x`, `y` (Z) em m e `radius` em m; cada valor pode ser nulo enquanto pendente                             |
-| `search`                  | Eixos `x`, `y` (Z) e `radius`, cada um com `min`, `max` e `step` em m, inicialmente nulos                        |
-| `waterCondition`          | Nulo, `section`, `dry` ou `piezometric`                                                                          |
-| `waterSource`             | Origem/justificativa da hipótese própria de água, até 2.000 caracteres                                           |
-| `loadCondition`           | Nulo, `section`, `none` ou `selected`                                                                            |
-| `loadIds`                 | IDs distintos de até 100 faixas da mesma seção, preservados também quando a seleção estiver inativa              |
+| Campo                     | Conteúdo e regra                                                                                                              |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `id`, `name`, `sectionId` | ID único, nome não vazio até 120 caracteres e referência obrigatória a uma seção existente                                    |
+| `description`             | Hipóteses do cenário, até 2.000 caracteres; branco é pendência                                                                |
+| `direction`               | `left-to-right` (+X), `right-to-left` (−X) ou nulo; não inferida pela inclinação do terreno                                   |
+| `methods`                 | Lista sem duplicatas de `bishop` e/ou `fellenius`; vazia é pendência. Fellenius disponível para círculo fixo; Bishop pendente |
+| `surfaceMode`             | `fixed`, `search` ou nulo                                                                                                     |
+| `fixedCircle`             | Centro `x`, `y` (Z) em m e `radius` em m; cada valor pode ser nulo enquanto pendente                                          |
+| `search`                  | Eixos `x`, `y` (Z) e `radius`, cada um com `min`, `max` e `step` em m, inicialmente nulos                                     |
+| `waterCondition`          | Nulo, `section`, `dry` ou `piezometric`                                                                                       |
+| `waterSource`             | Origem/justificativa da hipótese própria de água, até 2.000 caracteres                                                        |
+| `loadCondition`           | Nulo, `section`, `none` ou `selected`                                                                                         |
+| `loadIds`                 | IDs distintos de até 100 faixas da mesma seção, preservados também quando a seleção estiver inativa                           |
 
 Coordenadas têm o limite de armazenamento existente de ±1.000.000 m; raios devem ser positivos e até 1.000.000 m; passos devem ser positivos e até 2.000.000 m. São limites de cadastro, sem significado de recomendação de engenharia. Campos faltantes permanecem nulos, sem valores presumidos. O referencial original X/Z é preservado ao mudar a direção; eventual normalização pertence à preparação futura do motor.
 

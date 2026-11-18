@@ -86,8 +86,8 @@ export function CoreInputPreview({
           </ul>
         )}
         <p className="hint">
-          Fator de segurança ainda não calculado. Esta conferência não verifica
-          admissibilidade ou estabilidade.
+          Esta conferência reúne entradas. O cálculo de Fellenius é executado
+          separadamente, após preparar as fatias do círculo fixo.
         </p>
       </section>
     </details>

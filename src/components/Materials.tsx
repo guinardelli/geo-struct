@@ -34,8 +34,8 @@ export function Materials({
     <div className="materials-manager">
       <p className="hint">
         Materiais são compartilhados por todas as seções. “Dados preenchidos”
-        indica cadastro completo; a análise de estabilidade ainda não está
-        disponível.
+        indica cadastro completo, sem comprovar a adequação dos parâmetros para
+        uma análise de estabilidade.
       </p>
       <button
         className="primary"

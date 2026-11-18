@@ -924,7 +924,7 @@ export function ModelCanvas({
             aria-label="Prévia do caso"
           >
             Prévia: {analysisCase.name} ·{" "}
-            {directionLabel(analysisCase.direction)} · não calculado
+            {directionLabel(analysisCase.direction)} · prévia das entradas
           </div>
         )}
       </div>

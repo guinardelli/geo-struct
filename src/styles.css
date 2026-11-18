@@ -1593,3 +1593,8 @@ kbd {
   border: 1px solid var(--border);
   pointer-events: none;
 }
+.fellenius-panel {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}

@@ -125,7 +125,9 @@ test("cria caso explícito copiando círculo de tentativa, salva e relata sem mo
   expect(await save(page)).toEqual(saved);
   await page.getByRole("button", { name: "Entradas", exact: true }).click();
   const report = page.locator("#project-report");
-  await expect(report).toContainText("Verificação da crista · não calculado");
+  await expect(report).toContainText(
+    "Verificação da crista · somente entradas",
+  );
   await expect(report).toContainText("geostruct/4");
   await expect(report).toContainText("Bishop Simplificado");
 });
@@ -494,7 +496,7 @@ test("entrada incompleta mostra pendências e se atualiza ao editar material com
     "coesão",
   );
   await expect(input).toContainText("q = 0 kPa");
-  await expect(input).toContainText("Fator de segurança ainda não calculado");
+  await expect(input).toContainText("Esta conferência reúne entradas");
   await page
     .getByRole("button", { name: "Solo residual", exact: true })
     .click();

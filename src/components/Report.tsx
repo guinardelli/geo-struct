@@ -47,7 +47,7 @@ function CaseReport({
           water = activeWater(resolved);
         return (
           <section key={c.id}>
-            <h4>{c.name} · não calculado</h4>
+            <h4>{c.name} · somente entradas</h4>
             <p>
               Hipóteses: {c.description.trim() || "Não informadas"}.
               Identificação: {c.id}.
@@ -152,9 +152,9 @@ function CaseReport({
               </tbody>
             </table>
             <p>
-              Geometria e materiais compartilhados com {section.name}. Nenhuma
-              busca, verificação de admissibilidade ou cálculo de FS foi
-              executado.
+              Geometria e materiais compartilhados com {section.name}. Este
+              relatório registra as entradas; resultados da sessão não são
+              incluídos.
             </p>
           </section>
         );

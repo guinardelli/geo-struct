@@ -91,7 +91,7 @@ export function AnalysisCases({
                   )
                     ? `${diagnostics.filter((d) => d.target === c.id && d.level !== "info").length} pendência(s)`
                     : "Sem pendências"}
-                  <small>Não calculado</small>
+                  <small>Dados do caso</small>
                 </td>
                 <td>
                   <div className="material-row-actions">

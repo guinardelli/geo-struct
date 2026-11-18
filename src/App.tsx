@@ -1241,8 +1241,8 @@ export default function App() {
                       ))
                     ) : (
                       <p>
-                        Nenhuma inconsistência detectada na modelagem. A
-                        estabilidade ainda não foi calculada.
+                        Nenhuma inconsistência detectada na modelagem. Esta
+                        conferência não aprova a estabilidade.
                       </p>
                     )}
                   </div>
@@ -1317,7 +1317,7 @@ export default function App() {
                 GRADE
               </button>
               <span>m · kN · kPa</span>
-              <span className="model-only">Modelagem · sem cálculo de FS</span>
+              <span className="model-only">Fellenius · círculo fixo</span>
             </footer>
           </>
         )}
@@ -1628,9 +1628,10 @@ export default function App() {
             </p>
           </div>
           <div className="info-card">
-            Esta versão modela dados. O motor de estabilidade, a busca crítica e
-            as verificações de contenções pertencem às próximas etapas. A
-            conferência geométrica não representa aprovação de estabilidade.
+            Esta versão permite calcular Fellenius para um círculo fixo nas
+            propriedades do caso, após preparar as fatias. Bishop, busca crítica
+            e contenções pertencem às próximas etapas. A conferência geométrica
+            não representa aprovação de estabilidade.
           </div>
           <p className="hint">
             GeoStruct 0.1.0 · Ricardo Corsini e colaboradores · OpenStruct

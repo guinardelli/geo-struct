@@ -16,6 +16,7 @@ import { prepareSliceLoads } from "../core/slice-loads";
 import { SliceLoadInspection } from "./SliceLoadInspection";
 import { prepareSliceMechanics } from "../core/slice-mechanics";
 import { SliceMechanicsInspection } from "./SliceMechanicsInspection";
+import { FelleniusPanel } from "./FelleniusPanel";
 
 export type GeometryFields = { tolerance: string; angle: string };
 export type FixedCirclePreviewProps = {
@@ -247,7 +248,7 @@ export function FixedCirclePreview({
               <p aria-label="Entrada mecânica preparada">
                 Entrada mecânica consolidada:{" "}
                 {mechanics.mechanics.slices.length} fatias no sentido do
-                movimento. Sem equilíbrio ou FS.
+                movimento. Pronta para a avaliação do método.
               </p>
             )}
             {!dirty && mechanics?.status === "blocked" && (
@@ -265,6 +266,9 @@ export function FixedCirclePreview({
             >
               Inspecionar fatias
             </button>
+            {!dirty && mechanics?.status === "prepared" && (
+              <FelleniusPanel preparation={preparation} mechanics={mechanics} />
+            )}
           </>
         )}
         {!result && (
@@ -275,8 +279,8 @@ export function FixedCirclePreview({
         <p className="hint">
           Preparação de geometria, peso próprio, pressões prescritas e
           resultantes de sobrecargas. A entrada mecânica reúne os parâmetros da
-          base e as parcelas de água. Equilíbrio e fator de segurança ainda não
-          calculados.
+          base e as parcelas de água. Use Calcular Fellenius para avaliar o
+          círculo fixo com limiares explícitos.
         </p>
       </section>
       {table && !dirty && result?.status === "prepared" && (

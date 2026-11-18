@@ -69,7 +69,7 @@ Durante o desenho ou comandos de dois pontos, abra **Entrada precisa** no canto 
 
 ## Casos de análise
 
-Em **Análise → Novo caso**, cadastre um cenário da seção ativa. O caso começa com escolhas pendentes. Informe nome, hipóteses, direção e os métodos pretendidos. Direita/esquerda é sempre relativa ao eixo X do desenho; escolher movimento para a esquerda não espelha seus dados. Os métodos são registrados para preparação: ainda não executam cálculo.
+Em **Análise → Novo caso**, cadastre um cenário da seção ativa. O caso começa com escolhas pendentes. Informe nome, hipóteses, direção e os métodos pretendidos. Direita/esquerda é sempre relativa ao eixo X do desenho; escolher movimento para a esquerda não espelha seus dados. Fellenius está disponível para círculo fixo; Bishop e busca permanecem pendentes.
 
 Em **Água no caso**, escolha usar a condição atual da seção ou adotar condição seca/usar a linha cadastrada. As hipóteses próprias exigem origem; a opção piezométrica usa os pontos e γw da seção, mesmo se a linha estiver guardada nela. Em **Sobrecargas no caso**, escolha a condição atual da seção, ausência de cargas ou faixas selecionadas. A seleção explícita pode ativar faixas desabilitadas na seção; mantenha isso como escolha consciente. Dados das faixas (q, posição e origem), geometria e materiais permanecem compartilhados.
 
@@ -97,17 +97,25 @@ Selecione um caso com círculo fixo e abra **Geometria do círculo fixo** nas pr
 
 Se faltar γ, complete o material indicado e prepare novamente; as áreas continuam disponíveis durante a pendência. Rascunhos precisam ser aplicados ou descartados. Alterações aplicadas nas entradas exigem nova preparação. As prévias ficam na sessão e não alteram o arquivo do projeto.
 
-Abra **Pressões de água** para consultar u em kPa, ponto do arco, cotas, altura vertical e origem por fatia. O cálculo usa o γw informado na condição de água e a linha precisa cobrir todo o círculo. Na condição seca explícita, a pressão é zero e a linha guardada permanece inativa. γw ausente ou linha acima do terreno produzem diagnóstico, sem remover as áreas/pesos disponíveis. A pressão prescrita ainda não é aplicada a forças de água, resistência ou equilíbrio.
+Abra **Pressões de água** para consultar u em kPa, ponto do arco, cotas, altura vertical e origem por fatia. O cálculo usa o γw informado na condição de água e a linha precisa cobrir todo o círculo. Na condição seca explícita, a pressão é zero e a linha guardada permanece inativa. γw ausente ou linha acima do terreno produzem diagnóstico, sem remover as áreas/pesos disponíveis. A entrada mecânica distingue a pressão física da usada na resistência.
 
 Abra **Sobrecargas por fatia** para conferir totais por faixa, selecionar uma fatia e consultar cada trecho carregado, q, ponto X/Z, força e braço próprio. Q está em kN/m e o momento em kN·m/m. CCW positivo significa anti-horário no desenho X/Z; as colunas orientadas ao movimento seguem o sentido escolhido no caso. Sem sentido definido, essas colunas ficam pendentes e os valores CCW continuam disponíveis. Faixas sobrepostas são somadas; uma faixa fora da massa tem contribuição zero. q ausente em faixa contribuinte bloqueia as resultantes, preservando as outras inspeções. Zero informado continua identificado. Momentos opostos podem se anular sem eliminar a força. Veja [Sobrecargas nas fatias](SOBRECARGAS-NAS-FATIAS.md). Sem equilíbrio ou FS.
 
 Abra **Entrada mecânica** para conferir a reunião das preparações. As fatias seguem a ordem do movimento e mantêm o número original do desenho. O referencial local tem origem no centro do círculo; α é positivo quando a base desce no movimento. Selecione uma fatia para consultar o material resistente da base, c/φ/modo e fonte, W/Q, pressão física u, pressão usada ue e resultantes U/Ue na corda. No modo total, somente ue/Ue são zero; u/U e o peso próprio continuam registrados. Valores nulos de c/φ/modo ou sentido ausente bloqueiam a consolidação, mantendo as outras inspeções. U usa pressão constante representada no ponto do arco e não é somado à carga vertical W + Q. A entrada mecânica ainda não calcula normal, tração, equilíbrio ou FS. Ver [contrato e casos independentes](ENTRADA-MECANICA-DAS-FATIAS.md).
 
+## Fellenius no círculo fixo
+
+Após **Preparar fatias**, localize **Fellenius · círculo fixo** nas propriedades. Selecione Fellenius nos métodos do caso e aplique a escolha. Preencha o limiar motriz τD em kN/m e a tolerância de tração τt em kPa. Campos vazios são pendências; zero informado usa corte estrito. Clique **Calcular Fellenius**.
+
+O resultado apresenta FS do círculo ou o motivo de rejeição. Resistência nula nas bases aparece como FS = 0 destacado. Em **Inspecionar Fellenius**, consulte perfil, círculo/sentido, normal aproximada, tensão, parcelas de coesão/atrito e momentos de pesos/cargas. Valores negativos permanecem registrados. Alterar entradas, perfil, histórico, arquivo ou caso exige novo cálculo. Refinar a abertura angular permite comparar a sensibilidade.
+
+Neste recorte, face vertical no intervalo da massa, modos resistentes mistos e água externa bloqueiam o método. Bishop e busca crítica não são executados. Os resultados e limiares pertencem à sessão; salvar conserva somente as entradas do projeto v4. Veja [regras e referências](FELLENIUS-CIRCULO-FIXO.md).
+
 ## Documentar
 
 **Relatório de entradas** reúne todas as seções, materiais e fontes, coordenadas, água, cargas, círculo, casos e diagnósticos. Os casos registram condições resolvidas, lançamentos ativos, limites e dados guardados, sempre sem resultados de cálculo. Imprimir/PDF usa a impressão disponível no navegador/sistema. **Exportar HTML** fornece uma versão portátil. **Exportar desenho** salva SVG da vista atual; a extensão não contém o modelo editável completo, que pertence ao `.geo.json`.
 
-As verificações desta versão detectam inconsistências de modelagem. A estabilidade e os critérios de aceitação ainda não são calculados.
+A conferência detecta inconsistências de modelagem; o cálculo explícito de Fellenius avalia somente o círculo fixo. Não há comparação com critérios normativos de aceitação.
 
 ## Conferência integrada dos lançamentos
 

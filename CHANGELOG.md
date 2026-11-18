@@ -1,5 +1,12 @@
 # Histórico
 
+## Em desenvolvimento — Fellenius em círculo fixo
+
+- Método de referência com pressão neutra projetada (D1/USACE C-12), normal aproximada, resistência do material da base e momentos próprios das sobrecargas. FS somente para o círculo informado.
+- Perfil explícito de limiar motriz/tração, somas compensadas e diagnósticos de finitude, cancelamento, tração e resistência nula. Face vertical no intervalo e modos mistos bloqueiam o recorte.
+- Cálculo por ação explícita e inspeção das parcelas por fatia, com invalidação por edição, perfil, caso, histórico e arquivo. Textos do aplicativo passam a distinguir cadastro, preparação e cálculo.
+- Casos analíticos, reprodução de nove fatias de referência e fluxos de interface. Formato v4 e distribuição 0.1.0 preservados; Bishop, busca e aceite integral da especificação continuam pendentes.
+
 ## Em desenvolvimento — entrada mecânica das fatias
 
 - Consolidação de geometria, pesos, pressões e sobrecargas da mesma revisão/perfil em `geostruct-slice-mechanics/1`, com ordenação no sentido do movimento e identificação geométrica original preservada.

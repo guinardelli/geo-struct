@@ -14,7 +14,7 @@ Os artefatos do CI incluem traces de falhas, sem capturas de imagens. Resultados
 
 Testes adicionais verificam interfaces com subdivisões diferentes, conservação de área e ausência de sobreposição após editar/dividir, limites de pontos, identidades/materiais, cópia inválida, precisão/captura e faces verticais. O arquivo de exemplo da primeira versão é lido e regravado sem alterar seus dados. Os fluxos de interface cobrem edição compartilhada e histórico, inserção/exclusão gráfica, divisão com persistência, rejeição de cópia, deslocamento relativo, medição sem modificar o modelo e entrada de face vertical na janela mínima.
 
-Asserções de geometria não são validações das forças sobre faces verticais. O solver ainda não existe. Não se executa geração/conversão de imagens nos testes; traces são mantidos sem screenshots.
+Asserções de geometria não são validações das forças sobre faces verticais. O recorte de Fellenius recusa faces verticais no intervalo da massa. Não se executa geração/conversão de imagens nos testes; traces são mantidos sem screenshots.
 
 ### Materiais e arquivos
 
@@ -35,6 +35,12 @@ O domínio cobre criação com escolhas pendentes, condições herdadas e própr
 Os fluxos Chromium verificam criação, edição, rascunhos, desenho/cancelamento, cópia do círculo de tentativa, prévia de condições, busca sem geração de candidatos, arquivo e relatório, gerenciador na janela mínima, exclusão de faixa referenciada, operações de seção com casos, navegação por diagnóstico e recuperação v3. As verificações não validam interseções do círculo, admissibilidade física, malha de candidatos ou FS.
 
 ## Limites
+
+### Fellenius em círculo fixo
+
+Casos analíticos conferem normal projetada, coesão/atrito, força de carga constante com braços distintos, sinais e FS. A transcrição de nove fatias de Duncan fig. 7.34 reproduz FS ≈ 1,186281 após conversão SI, distinguindo a variante C-12 da C-13. O modelo próprio com preparação completa verifica refinamento, translação, espelhamento/sentido e água/modo. Testes de diagnóstico cobrem limiares exatos, tração tolerada/rejeitada sem corte para zero, resistência nula e soma não positiva, cancelamento, finitude, underflow, revisão, método selecionado, modos mistos e face vertical.
+
+Fluxos Chromium cobrem limiares obrigatórios, inspeção na janela mínima, alteração de perfil/dados, rascunho, histórico, isolamento de casos, arquivo sem resultados, resistência nula e tração. As referências, políticas e limites da evidência estão em [Fellenius em círculo fixo](FELLENIUS-CIRCULO-FIXO.md). O benchmark publicado verifica a equação nas fatias transcritas; não valida a reconstrução geométrica ou a busca do exemplo. Não há validação de Bishop ou aceite normativo.
 
 ### Entrada mecânica das fatias
 

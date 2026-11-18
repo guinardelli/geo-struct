@@ -38,7 +38,7 @@ Decomposição de cada fatia em subáreas até o arco, incluindo regiões cônca
 
 ### Peso próprio por material e fatia — implementado
 
-Aplicação do recorte aprovado de D2: soma de peso específico total × subárea, em kN/m, sem usar apenas o material da base ou inferir γ seco/saturado/submerso. Contrato independente `geostruct-slice-weights/1`, com revisão/perfil, totais e origem de cada parcela. γ ausente preserva as áreas e bloqueia os pesos, sem total parcial. Inspeção, rascunhos, histórico e arquivo v4 preservados. Ver [Pesos das fatias](PESOS-DAS-FATIAS.md). Pressões e sobrecargas são preparadas separadamente; equilíbrio permanece pendente.
+Aplicação do recorte aprovado de D2: soma de peso específico total × subárea, em kN/m, sem usar apenas o material da base ou inferir γ seco/saturado/submerso. Contrato independente `geostruct-slice-weights/1`, com revisão/perfil, totais e origem de cada parcela. γ ausente preserva as áreas e bloqueia os pesos, sem total parcial. Inspeção, rascunhos, histórico e arquivo v4 preservados. Ver [Pesos das fatias](PESOS-DAS-FATIAS.md). Pressões e sobrecargas são preparadas separadamente; o método consome a consolidação.
 
 ### Pressões prescritas nas bases — implementadas
 
@@ -51,6 +51,10 @@ Recorte de D3: Q = q × largura horizontal carregada, ponto médio do trecho com
 ### Entrada mecânica por fatia — implementada
 
 Consolidação de geometria, peso, água e sobrecargas com revisão/perfil coerentes, ordenação no movimento e coordenadas locais. Parâmetros resistentes do material da base, α e braço aproximado do peso; braços próprios das faixas preservados. u/U físicos separados de ue/Ue conforme modo efetivo/total, com inspeção e bloqueios de dados incompletos. Contrato `geostruct-slice-mechanics/1`, sem resultados no arquivo v4. Ver [Entrada mecânica das fatias](ENTRADA-MECANICA-DAS-FATIAS.md). Não avalia normal, resistência mobilizada, tração, equilíbrio, FS ou admissibilidade do modo misto.
+
+### Fellenius em círculo fixo — implementado no recorte inicial
+
+Variante projetada de D1, normal aproximada, resistência por base, braços próprios das faixas e FS do círculo informado. Perfil explícito, diagnósticos de momento motriz, tração, finitude e resistência nula; inspeção das parcelas e invalidação por revisão. Recusa faces verticais no intervalo da massa e mistura de modos nas bases. Regras locais e evidências em [Fellenius em círculo fixo](FELLENIUS-CIRCULO-FIXO.md), sem aceite integral da candidata, busca ou critério normativo.
 
 ### Referências e decisões
 
@@ -68,7 +72,7 @@ Os testes de modelagem deste repositório não substituem os casos geotécnicos 
 3. Casos de análise: implementados no recorte de cadastro e prévia, com identidade própria e vínculo à seção.
 4. **Conferência integrada e distribuição 0.1.0 — implementadas:** escopos por seção/caso, dependências compartilhadas, navegação, relatório, limite de arquivo simétrico e instaladores Windows/Linux disponíveis no Launcher. A homologação manual nativa completa continua pendente.
 5. **Contrato de transferência de entradas — implementado.** O recorte aprovado de D2 já sustenta o peso próprio. Concluir as regras restantes da especificação #30 e o catálogo #31 para os próximos cálculos: perfis numéricos, tratamento das faces verticais, água e comportamento de falhas.
-6. **Preparações e entrada mecânica por fatia — implementadas**, com casos independentes e rastreabilidade. Próxima entrega: Fellenius em círculo fixo, com parcelas motrizes/resistentes, normal aproximada e diagnósticos. Consolidar antes os critérios numéricos e de admissibilidade pertinentes de R0–R5 e seus casos independentes, sem presumir aceite integral da #30. Depois, Bishop Simplificado com resíduo e convergência. A verificação das preparações não substitui a validação das equações de estabilidade.
+6. **Preparações, entrada mecânica e Fellenius em círculo fixo — implementados no recorte documentado.** Próxima entrega: Bishop Simplificado com perfil explícito, resíduo, convergência e comparação na mesma superfície, após consolidar as regras pertinentes e seus casos independentes. O aceite integral da #30 e o catálogo #31 continuam em revisão.
 7. Implementar busca circular determinística, progresso, cancelamento, inspeção por fatia e memória rastreável. Vincular resultados à revisão de entrada e invalidá-los quando ela mudar.
 8. Especificar métodos rigorosos, superfícies não circulares e estabilidade com reforços. Especificar separadamente verificações/dimensionamento das contenções.
 
